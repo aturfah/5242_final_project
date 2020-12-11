@@ -6,6 +6,8 @@ tf.get_logger().setLevel("ERROR")
 physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
+print(physical_devices)
+
 # Misc things
 import numpy as np
 import gc
