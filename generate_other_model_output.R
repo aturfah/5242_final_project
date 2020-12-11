@@ -8,22 +8,22 @@ require(tree)
 setwd("~/Documents/projects/5242_final_project/")
 
 ### All other models
+DATASETS = c("MNIST",
+             "Fashion-MNIST",
+             "Kuzushiji-MNIST",
+             "CIFAR-10",
+             "Kuzushiji-49")
 data <- read_csv("proc_results.csv") %>%
-  select(-c("X1", "avg_time")) %>%
+  select(-c("X1", "avg_epochs")) %>%
   select(-starts_with("train"), -starts_with("valid"), -ends_with("loss")) %>%
-  mutate(dataset=factor(dataset, levels=c("MNIST", "Fashion MNIST")),
+  mutate(dataset=factor(dataset, levels=DATASETS),
          architecture=factor(architecture,
                              levels=c("2FC",
-                                      "C1-C1-2FC",
-                                      "C2-C1-2FC",
-                                      "C1-MP-C1-2FC",
-                                      "C2-C2-2FC",
-                                      "C1-MP-C1-MP-2FC")))
-
-mnist_data <- filter(data, dataset=="MNIST") %>%
-  select(-c("dataset"))
-fashn_data <- filter(data, dataset=="Fashion MNIST") %>%
-  select(-c("dataset"))
+                                      "Model C",
+                                      "Strided CNN",
+                                      "ConvPool CNN",
+                                      "All CNN"))) %>%
+  na.omit()
 
 performance_summary <- function(data) {
   summarize(data,
@@ -34,6 +34,41 @@ performance_summary <- function(data) {
             ) %>%
     arrange(desc(`Mean Test Acc.`)) %>%
     xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE)
+}
+
+
+
+random_forest_results <- function(data, out_fname) {
+  tree_data <- data %>%
+    mutate(regularization=as.factor(regularization),
+           initializer=as.factor(initializer),
+           optimizer=as.factor(optimizer))  
+  data_rf <- randomForest(test_acc ~ .,
+                          mtry=2, ## HOW TO TUNE THIS
+                          data = tree_data,
+                          importance = TRUE)
+  
+  cat("\n\n\nRandom Forest Performance\n")
+  print(data_rf)
+  
+  data_imp <- as_tibble(importance(data_rf)) %>%
+    mutate(variable=str_to_title(rownames(importance(data_rf)))) %>%
+    arrange(desc(`%IncMSE`))
+  
+  cat("\n\n\nRandom Forest Variable Importance\n")
+  data_imp %>%
+    rename(Variable=variable,
+           `Pct. Inc. MSE`=`%IncMSE`,
+           `Inc. Node Purity`=`IncNodePurity`) %>%
+    select(Variable, `Pct. Inc. MSE`, `Inc. Node Purity`) %>%
+    xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
+    print(include.rownames=FALSE)
+  
+  png(out_fname, height=300, width=500)
+  dotchart(data_imp$`%IncMSE`,
+           labels=data_imp$variable,
+           xlab="Pct. Inc. MSE")
+  dev.off() # Negative values -> Random perturbation does better
 }
 
 
@@ -128,139 +163,50 @@ dev.off()
 
 ########### MNIST ###############
 
-## Best Performance
-cat("\n\n\nMNIST Top Performers\n")
-mnist_data %>%
-  arrange(desc(test_acc)) %>%
-  head(8) %>%
-  xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
-  print(include.rownames=FALSE)
-
-
-## Compare results across Architectures
-cat("\n\n\nMNIST Architectures\n")
-mnist_data %>%
-  group_by(architecture) %>%
-  performance_summary() %>%
-  print(include.rownames=FALSE)
-
-## Compare results across Initialization
-cat("\n\n\nMNIST Initialization\n")
-mnist_data %>%
-  group_by(initializer) %>%
-  performance_summary() %>%
-  print(include.rownames=FALSE)
-
-## Compare results across optimizer
-cat("\n\n\nMNIST Optimizers\n")
-mnist_data %>%
-  group_by(optimizer) %>%
-  performance_summary() %>%
-  print(include.rownames=FALSE)
-
-## Compare results across Regularizer
-cat("\n\n\nMNIST Regularizers\n")
-mnist_data %>%
-  group_by(regularization) %>%
-  performance_summary() %>%
-  print(include.rownames=FALSE)
-
-
-#### Testing some RF Stuff
-random_forest_results <- function(data, out_fname) {
-  tree_data <- data %>%
-    select(-c("test_loss")) %>%
-    mutate(regularization=as.factor(regularization),
-           initializer=as.factor(initializer),
-           optimizer=as.factor(optimizer))  
-  data_rf <- randomForest(test_acc ~ .,
-                          mtry=2, ## HOW TO TUNE THIS
-                          data = tree_data,
-                          importance = TRUE)
+for (dataset_name in DATASETS) {
+  filt_data <- filter(data, dataset==dataset_name) %>%
+    select(-c("dataset"))
   
-  cat("\n\n\nRandom Forest Performance\n")
-  print(data_rf)
-  
-  data_imp <- as_tibble(importance(data_rf)) %>%
-    mutate(variable=str_to_title(rownames(importance(data_rf)))) %>%
-    arrange(desc(`%IncMSE`))
-
-  cat("\n\n\nRandom Forest Variable Importance\n")
-  data_imp %>%
-    rename(Variable=variable,
-           `Pct. Inc. MSE`=`%IncMSE`,
-           `Inc. Node Purity`=`IncNodePurity`) %>%
-    select(Variable, `Pct. Inc. MSE`, `Inc. Node Purity`) %>%
+  ## Best Performance
+  cat(paste("\n\n\n", dataset_name, " Top Performers\n", sep=""))
+  filt_data  %>%
+    arrange(desc(test_acc)) %>%
+    head(8) %>%
     xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
     print(include.rownames=FALSE)
 
-  png(out_fname, height=300, width=500)
-  dotchart(data_imp$`%IncMSE`,
-           labels=data_imp$variable,
-           xlab="Pct. Inc. MSE")
-  dev.off() # Negative values -> Random perturbation does better
+  ## Compare results across Architectures
+  cat(paste("\n\n\n", dataset_name, " Architectures\n", sep=""))
+  filt_data %>%
+    group_by(architecture) %>%
+    performance_summary() %>%
+    print(include.rownames=FALSE)
+
+  ## Compare results across Initialization
+  cat(paste("\n\n\n", dataset_name, " Initialization\n", sep=""))
+  filt_data %>%
+    group_by(initializer) %>%
+    performance_summary() %>%
+    print(include.rownames=FALSE)
+
+  ## Compare results across optimizer
+  cat(paste("\n\n\n", dataset_name, " Optimizers\n", sep=""))
+  filt_data %>%
+    group_by(optimizer) %>%
+    performance_summary() %>%
+    print(include.rownames=FALSE)
+
+  ## Compare results across Regularizer
+  cat(paste("\n\n\n", dataset_name, " Regularizers\n", sep=""))
+  filt_data %>%
+    group_by(regularization) %>%
+    performance_summary() %>%
+    print(include.rownames=FALSE)
+  
+  ## RF. Analysis
+  output_fname = paste("images/", dataset_name,
+                       "_rf_variable_importance.png", sep="")
+  random_forest_results(filt_data, output_fname)
 }
-
-random_forest_results(mnist_data, "images/mnist_rf_variable_importance.png")
-
-
-for (temp in 1:5) {
-  cat("#####################################################################\n")
-}
-
-########### FASNION MNIST ################
-## Best Performance
-cat("\n\n\nFASHION_MNIST Top Performers\n")
-fashn_data %>%
-  arrange(desc(test_acc)) %>%
-  head(8) %>%
-  xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
-  print(include.rownames=FALSE)
-
-## Compare results across Architectures
-cat("\n\n\nFASHION_MNIST Architectures\n")
-fashn_data %>%
-  group_by(architecture) %>%
-  performance_summary() %>%
-  print(include.rownames=FALSE)
-
-## Compare results across Initialization
-cat("\n\n\nFASHION_MNIST Initialization\n")
-fashn_data %>%
-  group_by(initializer) %>%
-  performance_summary() %>%
-  print(include.rownames=FALSE)
-
-## Compare results across optimizer
-cat("\n\n\nFASHION_MNIST Optimizers\n")
-fashn_data %>%
-  group_by(optimizer) %>%
-  performance_summary() %>%
-  print(include.rownames=FALSE)
-
-## Compare results across Regularizer
-cat("\n\n\nFASHION_MNIST Regularizers\n")
-fashn_data %>%
-  group_by(regularization) %>%
-  performance_summary() %>%
-  print(include.rownames=FALSE)
-
-
-random_forest_results(fashn_data, "images/fashn_rf_variable_importance.png")
-
-
-for (temp in 1:5) {
-  cat("#####################################################################\n")
-}
-
-cat("\n\n\n\n\nAPPENDIX TABLES (ALL MNIST)\n\n")
-mnist_data %>%
-  arrange(desc(test_acc)) %>%
-  xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE)
-
-
-cat("\n\n\n\n\nAPPENDIX TABLES (ALL FASHION_MNIST)\n\n")
-fashn_data %>%
-  arrange(desc(test_acc)) %>%
-  xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE)
+rm(list=c("filt_data", "output_fname", "dataset_name"))
 
