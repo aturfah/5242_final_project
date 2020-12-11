@@ -1,8 +1,19 @@
 __pycache__/
 .Rhistory
 env/
-images/
+
+## Files created only to run in parallel
+*5.*
+*4.*
+*3.*
+*2.*
+
+
+## Kuzushiji Input Data
+kuzushiji_files/*.npz
+
+## Output Data
 logs/
 base_logs/
-kuzushiji_files/*.npz
+images/
 *.csv
