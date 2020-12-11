@@ -5,3 +5,4 @@ images/
 logs/
 base_logs/
 kuzushiji_files/*.npz
+*.csv
