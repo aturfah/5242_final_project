@@ -7,7 +7,7 @@ env/
 *4.*
 *3.*
 *2.*
-
+!*.pkl
 
 ## Kuzushiji Input Data
 kuzushiji_files/*.npz
