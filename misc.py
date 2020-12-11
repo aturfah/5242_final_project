@@ -141,7 +141,6 @@ def process_architecture(arch_str, initializer):
         elif layer_key == 'd':
             units = [int(x) for x in layer.split(":")[1:]][0]
             temp["layer"] = tf.keras.layers.Dense(units, activation='relu', kernel_initializer=initializer)
-            temp["regularize"] = True
         elif layer_key == 'c':
             filters, k_size, stride = [int(x) for x in layer.split(":")[1:]]
             temp["layer"] = tf.keras.layers.Convolution2D(filters, k_size, stride,
@@ -190,10 +189,65 @@ def load_model_history(fname=Config.saved_results_fname):
     output = {}
     try:
         output = pkl.load(open(fname, 'rb'))
+        print("#" * 30, "OPENED {}".format(fname))
     except Exception:
         pass
 
     return output
 
+
 def save_model_history(model_hist):
     pkl.dump(model_hist, open(Config.saved_results_fname, 'wb'))
+
+
+def clean_model_history(model_history):
+    """
+    Remove models/datasets with an epoch length of 0
+    """
+    datasets = Config.DATASETS
+    invalid_model_datasets = []
+    for model_type in model_history.keys():
+        for dataset in datasets:
+            dataset_results = model_history[model_type].get(dataset)
+
+            if dataset_results is None:
+                continue
+
+            valid_results = True
+
+            for dataset_fold_info in dataset_results:
+                if dataset_fold_info["epochs"] == 0:
+                    print("\tDOOT")
+                    valid_results = False
+                    break
+
+            if not valid_results:
+                print("INVALID", model_type, dataset)
+                invalid_model_datasets.append(
+                    (model_type, dataset)
+                )
+
+    for model, dataset in invalid_model_datasets:
+        del model_history[model_type][dataset]
+
+    return model_history
+
+
+def merge_results(base_dict, target_dict):
+    output = deepcopy(base_dict)
+
+    base_keys = set(base_dict.keys())
+    tgt_keys = set(target_dict.keys())
+
+    shared_keys = base_keys.intersection(tgt_keys)
+
+    for key in tgt_keys:
+        if key in shared_keys:
+            print("Ignoring: {}".format(key))
+        output[key] = target_dict[key]
+
+    print(len(base_keys))
+    print(len(tgt_keys))
+    print(len(output.keys()))
+
+    return output
