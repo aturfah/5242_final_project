@@ -90,12 +90,21 @@ class Config():
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
     base_results_fname = "base_results.csv"
+
+    temp_model_arch = [
+        "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
+        "c:32:3:1|c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
+        "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
+        "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
+        "c:32:3:1|c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
+    ]
+
     ARCHITECTURE_MAP = {
-        model_arch[0]: "2FC",
-        # model_arch[1]: "Model C",
-        # model_arch[2]: "Strided CNN",
-        # model_arch[3]: "ConvPool CNN",
-        # model_arch[4]: "All CNN"
+        temp_model_arch[0]: "2FC",
+        temp_model_arch[1]: "Model C",
+        temp_model_arch[2]: "Strided CNN",
+        temp_model_arch[3]: "ConvPool CNN",
+        temp_model_arch[4]: "All CNN"
     }
     REGULARIZATION_MAP = {
         model_regularization_layer[0]: "Dropout",
