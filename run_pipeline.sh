@@ -1,5 +1,5 @@
 #!/bin/bash
-for temp in {1..480..1}
+for temp in {1..240..1}
 do
     clear
     python train_models.py
