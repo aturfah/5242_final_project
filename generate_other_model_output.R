@@ -23,7 +23,7 @@ data <- read_csv("proc_results.csv") %>%
                                       "Strided CNN",
                                       "ConvPool CNN",
                                       "All CNN"))) %>%
-  na.omit()
+                                      na.fail()
 
 performance_summary <- function(data) {
   summarize(data,
