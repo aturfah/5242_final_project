@@ -52,10 +52,10 @@ class Config():
     """
     model_arch = [
         # "f|d:16|d:16|d:{prediction_head}", # Dumb linear models
-        "c:96:3:1|c:96:3:1|c:96:3:1|p:3|r|c:192:3:1|c:192:3:1|c:192:3:1|p:3|r|c:192:3:1|c:192:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
-        "c:96:3:1|c:96:3:1|p:3|r|c:192:3:1|c:192:3:1|p:3|r|c:192:3:1|c:192:1:1|c:{prediction_head}:1:1|g", # Model C
-        # "c:96:3:1|c:96:3:2|r|c:192:3:1|c:192:3:2|r|c:192:3:1|c:192:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
-        # "c:96:3:1|c:96:3:1|c:96:3:2|r|c:192:3:1|c:192:3:1|c:192:3:2|r|c:192:3:1|c:192:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
+        "c:32:3:1|c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
+        # "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
+        # "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
+        # "c:32:3:1|c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
     ]
 
     # D is Dropout, B is BatchNorm
@@ -85,7 +85,7 @@ class Config():
     saved_results_fname = "results_cv.pkl"
     saved_results_buffer = 1
 
-    old_results_fnames = ["results_cv1.pkl"]
+    old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in [2, 3, 4, 5]]
 
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
@@ -108,4 +108,11 @@ class Config():
         model_init[1]: "Glorot Normal",
         model_init[2]: "Random Normal",
         model_init[3]: "Random Uniform"
+    }
+    DATASET_NAME_MAP = {
+        MNIST: "MNIST",
+        FASHION_MNIST: "Fashion-MNIST",
+        CIFAR10: "CIFAR-10",
+        KMNIST: "Kuzushiji-MNIST",
+        K49: "Kuzushiji-49"
     }
