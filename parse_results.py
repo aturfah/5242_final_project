@@ -1,4 +1,5 @@
 from config import Config
+from config import MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49
 from misc import load_model_history, clean_model_history, merge_results
 import pandas as pd
 from copy import deepcopy
@@ -79,37 +80,12 @@ def prepare_dataset(list_of_performance, dataset_name):
     return dataset_df
 
 
-def prepare_fashn(list_of_performance):
-    performance_df = pd.DataFrame(list_of_performance)
-    performance_df.drop(columns=["model_name"], inplace=True)
+def prepare_output_df(list_of_performance):
+    temp = []
+    for dataset_name in Config.DATASETS:
+        temp.append(prepare_dataset(list_of_performance, dataset_name))
 
-    fashn_df = performance_df.filter(regex="|".join(list(performance_df.columns[0:4]) + ["avg_time"] + ["fashion.*"]))
-    fashn_df = prepare_df(fashn_df, prefix="fashion_mnist_")
-    fashn_df["dataset"] = ["Fashion MNIST"] * len(list_of_performance)
-
-    return fashn_df
-
-
-def prepare_mnist(list_of_performance):
-    performance_df = pd.DataFrame(list_of_performance)
-    performance_df.drop(columns=["model_name"], inplace=True)    
-
-    mnist_df = performance_df.filter(regex="|".join(list(performance_df.columns[0:4]) + ["avg_time"] + ["^[^f][^a][^s][^h]"]))
-    mnist_df = prepare_df(mnist_df, prefix="mnist_")
-    mnist_df["dataset"] = ["MNIST"] * len(list_of_performance)
-
-    return mnist_df
-
-
-def prepare_cifar10(list_of_performance):
-    performance_df = pd.DataFrame(list_of_performance)
-    performance_df.drop(columns=["model_name"], inplace=True)    
-
-    mnist_df = performance_df.filter(regex="|".join(list(performance_df.columns[0:4]) + ["avg_time"] + ["^[^f][^a][^s][^h]"]))
-    mnist_df = prepare_df(mnist_df, prefix="cifar10_")
-    mnist_df["dataset"] = ["CIFAR10"] * len(list_of_performance)
-
-    return mnist_df
+    return pd.concat(temp)
 
 
 if __name__ == "__main__":
@@ -131,31 +107,14 @@ if __name__ == "__main__":
             base_model_results = process_results_dictionary(res)
         else:
             model_performance.append(process_results_dictionary(res))
-
-    for dataset_name in Config.DATASETS:
-        print("\n\n{}".format(dataset_name))
-        prepare_dataset(model_performance, dataset_name)
     
     raise RuntimeError("DOOT DOOT")
 
     performance_df = pd.DataFrame(model_performance)
     performance_df.drop(columns=["model_name"], inplace=True)
 
-    ## Prepare Base Model results
-    base_mnist = prepare_mnist([base_model_results])
-    base_fashn = prepare_fashn([base_model_results])
+    ## Prepare Base Model results & Write for R analysis
+    prepare_output_df([base_model_results]).to_csv(Config.base_results_fname)
 
-    # Write for R analysis
-    total_base = pd.concat([base_mnist, base_fashn])
-    total_base.to_csv(Config.base_results_fname)
-
-
-
-
-    ## Split across datasets & prepare them
-    fashn_df = prepare_fashn(model_performance)
-    mnist_df = prepare_mnist(model_performance)
-
-    # Write this to CSV because I want to use R to do analysis
-    total_df = pd.concat([mnist_df, fashn_df])
-    total_df.to_csv(Config.proc_results_fname)
+    ## Write out model results for the rest of them
+    prepare_output_df(model_performance).to_csv(Config.proc_results_fname)
