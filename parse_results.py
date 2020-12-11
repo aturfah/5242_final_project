@@ -81,11 +81,13 @@ def prepare_dataset(list_of_performance, dataset_name):
 
 
 def prepare_output_df(list_of_performance):
-    temp = []
+    list_of_df = []
     for dataset_name in Config.DATASETS:
-        temp.append(prepare_dataset(list_of_performance, dataset_name))
+        temp = prepare_dataset(list_of_performance, dataset_name)
+        temp = prepare_df(temp, "{}_".format(dataset_name))
+        list_of_df.append(temp)
 
-    return pd.concat(temp)
+    return pd.concat(list_of_df)
 
 
 if __name__ == "__main__":
@@ -107,11 +109,6 @@ if __name__ == "__main__":
             base_model_results = process_results_dictionary(res)
         else:
             model_performance.append(process_results_dictionary(res))
-    
-    raise RuntimeError("DOOT DOOT")
-
-    performance_df = pd.DataFrame(model_performance)
-    performance_df.drop(columns=["model_name"], inplace=True)
 
     ## Prepare Base Model results & Write for R analysis
     prepare_output_df([base_model_results]).to_csv(Config.base_results_fname)
