@@ -3,24 +3,26 @@ from config import MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49
 from misc import load_model_history, clean_model_history, merge_results
 import pandas as pd
 from copy import deepcopy
+from numpy import median
 
 def handle_fold_performance(fold_info):
     output = {}
 
     epochs = []
     for type_ in ["train", "valid", "test"]:
-        output_key = "{}_{}_{}".format("{}", type_, "{}")
-        temp_loss = []
+        output_key = "{}_{}_{}_{}".format("{}", "{}", type_, "{}")
         temp_acc = []
         for fold in fold_info:
             info = fold[type_]
-            temp_loss.append(info[0])
             temp_acc.append(info[1])
             if len(epochs) < 100 / Config.validation_pct:
+                # Way to check that number of folds isn't exceeded
                 epochs.append(fold["epochs"])
 
-        output[output_key.format("{}", "loss")] = sum(temp_loss) / len(temp_loss)
-        output[output_key.format("{}", "acc")] = sum(temp_acc) / len(temp_acc)
+        output[output_key.format("{}", "mean", "acc")] = sum(temp_acc) / len(temp_acc)
+        output[output_key.format("{}", "med", "acc")] = median(temp_acc)
+        output[output_key.format("{}", "min", "acc")] = min(temp_acc)
+        output[output_key.format("{}", "max", "acc")] = max(temp_acc)
 
     output["avg_epochs"] = sum(epochs) / len(epochs)
 
