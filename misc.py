@@ -97,8 +97,7 @@ def pull_data_tfds(dataset_name):
     return train_raw, valid_raw, test_raw
 
 
-
-def tb_callback_prepare(model_name, early_stop=False):
+def tb_callback_prepare(model_name, early_stop=False, reduce_lr=False):
     logs_base_dir = Config().logs_base_dir
 
     new_dir = logs_base_dir.joinpath(model_name)
@@ -106,19 +105,62 @@ def tb_callback_prepare(model_name, early_stop=False):
         # new_dir.rmdir()
         new_dir.mkdir()
 
-    # The Vanilla Tensorboard Callback
+    ## The Vanilla Tensorboard Callback
     tbcb = tf.keras.callbacks.TensorBoard(
         log_dir=new_dir, histogram_freq=1)
 
     output = [tbcb]
 
-    # Early Stopping
+    ## Reduce LR Callback
+    ## NOTE: Not used
+    if reduce_lr:
+        rlcb = ReduceLROnPlateau(factor=0.2, patience=3, min_lr=0.00001, verbose=1)
+        output.append(rlcb)
+
+    ## Early Stopping
     if early_stop:
-        escb = tf.keras.callbacks.EarlyStopping(patience=5,
-            restore_best_weights=True)
+        escb = tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
         output.append(escb)
 
     return output
+
+
+def parse_layer(layer, initializer, final_layer=False):
+    """
+    Map the layer key to the appropriate layer definition
+    """
+    temp = {}
+    temp["regularize"] = False
+    temp["layer"] = None
+
+    if not final_layer:
+        activation = "relu"
+    else:
+        activation = None
+
+    layer_key = layer[0]
+    if layer_key == 'f':
+        temp["layer"] = tf.keras.layers.Flatten()
+    elif layer_key == 'd':
+        units = [int(x) for x in layer.split(":")[1:]][0]
+        temp["layer"] = tf.keras.layers.Dense(units, activation=activation, kernel_initializer=initializer)
+    elif layer_key == 'c':
+        filters, k_size, stride = [int(x) for x in layer.split(":")[1:]]
+        temp["layer"] = tf.keras.layers.Convolution2D(filters, k_size, stride,
+            activation=activation, kernel_initializer=initializer, padding="same")
+    elif layer_key == 'p':
+        p_size = [int(x) for x in layer.split(":")[1:]][0]
+        temp["layer"] = tf.keras.layers.MaxPool2D(pool_size=p_size,
+            padding="same", strides=2)
+    elif layer_key == 'g':
+        temp["layer"] = tf.keras.layers.GlobalAveragePooling2D()
+    elif layer_key == 'r':
+        temp["regularize"] = True
+    else:
+        raise NotImplementedError("ONLY SUPPORTS FLATTEN, CONV, AND DENSE")
+
+    return temp
+
 
 def process_architecture(arch_str, initializer):
     """
@@ -130,35 +172,15 @@ def process_architecture(arch_str, initializer):
 
     output = []
 
-    for layer in arch_layers:
-        temp = {}
-        temp["regularize"] = False
-        temp["layer"] = None
-
-        layer_key = layer[0]
-        if layer_key == 'f':
-            temp["layer"] = tf.keras.layers.Flatten()
-        elif layer_key == 'd':
-            units = [int(x) for x in layer.split(":")[1:]][0]
-            temp["layer"] = tf.keras.layers.Dense(units, activation='relu', kernel_initializer=initializer)
-        elif layer_key == 'c':
-            filters, k_size, stride = [int(x) for x in layer.split(":")[1:]]
-            temp["layer"] = tf.keras.layers.Convolution2D(filters, k_size, stride,
-                activation='relu', kernel_initializer=initializer, padding="same")
-        elif layer_key == 'p':
-            p_size = [int(x) for x in layer.split(":")[1:]][0]
-            temp["layer"] = tf.keras.layers.MaxPool2D(pool_size=p_size,
-                padding="same", strides=2)
-        elif layer_key == 'g':
-            temp["layer"] = tf.keras.layers.GlobalAveragePooling2D()
-        elif layer_key == 'r':
-            temp["regularize"] = True
-        else:
-            raise NotImplementedError("ONLY SUPPORTS FLATTEN, CONV, AND DENSE")
-
+    for layer in arch_layers[:-1]:
+        temp = parse_layer(layer, initializer)
         output.append(temp)
 
+    # Do the final layer separately
+    output.append(parse_layer(arch_layers[-1], initializer, final_layer=True))
+
     return output
+
 
 def process_regularizer(reg_str):
     """Take in the regularizer string and
@@ -178,11 +200,21 @@ def process_regularizer(reg_str):
 
     return output
 
+
 def process_optimizer(opt_str):
-    if opt_str in ("adam", "adagrad", "rmsprop"):
-        return opt_str
-    elif opt_str == "cooler_adam":
-        return tf.keras.optimizers.Adam(amsgrad=True)
+    optimizer_dict = {
+        "adam": tf.keras.optimizers.Adam(),
+        "adam2": tf.keras.optimizers.Adam(learning_rate=0.01),
+        "adam4": tf.keras.optimizers.Adam(learning_rate=1e-4),
+        "adam5": tf.keras.optimizers.Adam(learning_rate=1e-5),
+        "adagrad": tf.keras.optimizers.Adagrad(),
+        "rmsprop": tf.keras.optimizers.RMSprop()
+    }
+
+    if opt_str not in optimizer_dict:
+        raise RuntimeError("Invalid optimizer: {}".format(opt_str))
+
+    return optimizer_dict[opt_str]
 
 
 def load_model_history(fname=Config.saved_results_fname):
@@ -217,7 +249,6 @@ def clean_model_history(model_history):
 
             for dataset_fold_info in dataset_results:
                 if dataset_fold_info["epochs"] == 0:
-                    print("\tDOOT")
                     valid_results = False
                     break
 
@@ -228,7 +259,7 @@ def clean_model_history(model_history):
                 )
 
     for model, dataset in invalid_model_datasets:
-        del model_history[model_type][dataset]
+        del model_history[model][dataset]
 
     return model_history
 
