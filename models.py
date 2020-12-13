@@ -20,7 +20,7 @@ def create_base_model(name=None, dataset=None):
 
 def compile_base_model(model):
     model.compile("adam",
-        loss='sparse_categorical_crossentropy',
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
         metrics=['sparse_categorical_accuracy'])
 
 
@@ -30,9 +30,9 @@ def create_custom_model(name, arch, reg, initializer, dataset):
         input_shape=Config().DATASET_IMAGE_SHAPE[dataset])
     )
 
-    if "D" in reg:
-        mod.add(tf.keras.layers.Dropout(0.2))
-
+    # Data Augmentation
+    mod.add(tf.keras.layers.experimental.preprocessing.RandomRotation(factor=0.08))
+    mod.add(tf.keras.layers.experimental.preprocessing.RandomTranslation((-0.1, 0.1), (-0.1, 0.1)))
 
     layers = process_architecture(arch, initializer)
     for layer_info in layers[:-1]:
@@ -70,6 +70,7 @@ def fit_and_evaluate(model_type, dataset_name):
         create_model_function = create_base_model
         compile_model_function = compile_base_model
         early_stop = False
+        reduce_lr = False
         model_name_base = model_type
         batch_size = 128
         num_epochs = 100
@@ -85,16 +86,16 @@ def fit_and_evaluate(model_type, dataset_name):
                 dataset)
 
         early_stop = True
+        reduce_lr = False
         num_epochs = Config().MAX_TRAIN_EPOCHS
         model_name_base = generate_model_name(model_type)
         compile_model_function = lambda x: x.compile(
             process_optimizer(model_type.split("!")[-1]),
-            loss='sparse_categorical_crossentropy',
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
             metrics=['sparse_categorical_accuracy']
         )
 
     train_data, valid_data, test_data = pull_data(dataset_name)
-
     backup_models = []
 
     abs_start_time = time.time()
@@ -105,7 +106,7 @@ def fit_and_evaluate(model_type, dataset_name):
 
         model_fold = create_model_function(name=model_name, dataset=dataset_name)
         compile_model_function(model_fold)
-        tensorboard_callbacks = tb_callback_prepare(model_name, early_stop)
+        tensorboard_callbacks = tb_callback_prepare(model_name, early_stop, reduce_lr)
 
         model_fold.summary()
 
@@ -119,8 +120,8 @@ def fit_and_evaluate(model_type, dataset_name):
             hist = []
             print("Successfully loaded model!")
         except Exception:
-            hist = model_fold.fit(train_fold.shuffle(1000, reshuffle_each_iteration=True).batch(batch_size).prefetch(10),
-                    validation_data=valid_fold.shuffle(1000).batch(256).prefetch(10),
+            hist = model_fold.fit(train_fold.shuffle(512, reshuffle_each_iteration=True).batch(batch_size).prefetch(10),
+                    validation_data=valid_fold.shuffle(512).batch(256).prefetch(10),
                     epochs=num_epochs,
                     verbose=1,
                     callbacks=[tensorboard_callbacks]).history["loss"]
@@ -132,9 +133,9 @@ def fit_and_evaluate(model_type, dataset_name):
 
         output.append({
             "epochs": len(hist),
-            "train": model_fold.evaluate(train_fold.batch(256)),
-            "valid": model_fold.evaluate(valid_fold.batch(256)),
-            "test": model_fold.evaluate(test_data.batch(256))
+            "train": model_fold.evaluate(train_fold.batch(512)),
+            "valid": model_fold.evaluate(valid_fold.batch(512)),
+            "test": model_fold.evaluate(test_data.batch(512))
         })
 
     for model_fold, model_path in backup_models:

@@ -111,12 +111,6 @@ def tb_callback_prepare(model_name, early_stop=False, reduce_lr=False):
 
     output = [tbcb]
 
-    ## Reduce LR Callback
-    ## NOTE: Not used
-    if reduce_lr:
-        rlcb = ReduceLROnPlateau(factor=0.2, patience=3, min_lr=0.00001, verbose=1)
-        output.append(rlcb)
-
     ## Early Stopping
     if early_stop:
         escb = tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
