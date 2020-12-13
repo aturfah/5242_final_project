@@ -11,8 +11,11 @@ if __name__ == "__main__":
 
     for filename in pickle_files:
         data = None
-        with open(filename, 'rb') as in_file:
-            data = pickle.load(in_file)
+        try:
+            with open(filename, 'rb') as in_file:
+                data = pickle.load(in_file)
+        except Exception:
+            continue
 
         models_to_delete = []
         for key in data.keys():
