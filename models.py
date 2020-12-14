@@ -122,7 +122,7 @@ def fit_and_evaluate_fold(model_type, dataset_name, fold_idx):
         print("Successfully loaded model!")
     except Exception:
         hist = model_fold.fit(train_fold.shuffle(512, reshuffle_each_iteration=True).batch(batch_size).prefetch(10),
-                validation_data=valid_fold.shuffle(512).batch(256).prefetch(10),
+                validation_data=valid_fold.shuffle(512).batch(batch_size).prefetch(10),
                 epochs=num_epochs,
                 verbose=1,
                 callbacks=[tensorboard_callbacks]).history["loss"]
@@ -132,9 +132,9 @@ def fit_and_evaluate_fold(model_type, dataset_name, fold_idx):
 
     output.append({
         "epochs": len(hist),
-        "train": model_fold.evaluate(train_fold.batch(256)),
-        "valid": model_fold.evaluate(valid_fold.batch(256)),
-        "test": model_fold.evaluate(test_data.batch(256))
+        "train": model_fold.evaluate(train_fold.batch(batch_size)),
+        "valid": model_fold.evaluate(valid_fold.batch(batch_size)),
+        "test": model_fold.evaluate(test_data.batch(batch_size))
     })
 
 
