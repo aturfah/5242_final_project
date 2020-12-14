@@ -58,7 +58,7 @@ def generate_model_name(model_type):
     return "_".join([architecture, regularization, initializer, optimizer])
 
 
-def fit_and_evaluate(model_type, dataset_name):
+def fit_and_evaluate_fold(model_type, dataset_name, fold_idx):
     """
     Estimate model performance with Cross-Validation
 
@@ -99,48 +99,45 @@ def fit_and_evaluate(model_type, dataset_name):
     backup_models = []
 
     abs_start_time = time.time()
-    for idx in range(len(train_data)):
-        model_name = "{}_{}_{}".format(model_name_base, dataset_name, idx)
-        model_path = Config().logs_base_dir.joinpath(model_name).joinpath("model")
-        print("#" * 30 + "\nFitting", model_name)
 
-        model_fold = create_model_function(name=model_name, dataset=dataset_name)
-        compile_model_function(model_fold)
-        tensorboard_callbacks = tb_callback_prepare(model_name, early_stop, reduce_lr)
+    #### FIT THE MODEL
+    model_name = "{}_{}_{}".format(model_name_base, dataset_name, fold_idx)
+    model_path = Config().logs_base_dir.joinpath(model_name).joinpath("model")
+    print("#" * 30 + "\nFitting", model_name)
 
-        model_fold.summary()
+    model_fold = create_model_function(name=model_name, dataset=dataset_name)
+    compile_model_function(model_fold)
+    tensorboard_callbacks = tb_callback_prepare(model_name, early_stop, reduce_lr)
 
-        train_fold = train_data[idx]
-        valid_fold = valid_data[idx]
+    model_fold.summary()
 
-        start_time = time.time()
+    train_fold = train_data[fold_idx]
+    valid_fold = valid_data[fold_idx]
 
-        try:
-            model_fold = tf.keras.models.load_model(model_path)
-            hist = []
-            print("Successfully loaded model!")
-        except Exception:
-            hist = model_fold.fit(train_fold.shuffle(512, reshuffle_each_iteration=True).batch(batch_size).prefetch(10),
-                    validation_data=valid_fold.shuffle(512).batch(256).prefetch(10),
-                    epochs=num_epochs,
-                    verbose=1,
-                    callbacks=[tensorboard_callbacks]).history["loss"]
+    start_time = time.time()
 
-        duration = int(time.time() - start_time)
-        print("Took {}s ({}s total)\n".format(duration,
-                                            int(time.time() - abs_start_time)))
+    try:
+        model_fold = tf.keras.models.load_model(model_path)
+        hist = []
+        print("Successfully loaded model!")
+    except Exception:
+        hist = model_fold.fit(train_fold.shuffle(512, reshuffle_each_iteration=True).batch(batch_size).prefetch(10),
+                validation_data=valid_fold.shuffle(512).batch(256).prefetch(10),
+                epochs=num_epochs,
+                verbose=1,
+                callbacks=[tensorboard_callbacks]).history["loss"]
 
-        backup_models.append((model_fold, model_path))
+    print("Took {}s ({}s total)\n".format(int(time.time() - start_time),
+                                        int(time.time() - abs_start_time)))
 
-        output.append({
-            "time": duration,
-            "epochs": len(hist),
-            "train": model_fold.evaluate(train_fold.batch(512)),
-            "valid": model_fold.evaluate(valid_fold.batch(512)),
-            "test": model_fold.evaluate(test_data.batch(512))
-        })
+    output.append({
+        "epochs": len(hist),
+        "train": model_fold.evaluate(train_fold.batch(256)),
+        "valid": model_fold.evaluate(valid_fold.batch(256)),
+        "test": model_fold.evaluate(test_data.batch(256))
+    })
 
-    for model_fold, model_path in backup_models:
-        model_fold.save(model_path)
+
+    model_fold.save(model_path)
 
     return output
