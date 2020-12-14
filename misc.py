@@ -1,6 +1,7 @@
 import os
 import shutil
 import tensorflow as tf
+import tensorflow_addons as tfa
 import tensorflow_datasets as tfds
 import numpy as np
 
@@ -202,7 +203,10 @@ def process_optimizer(opt_str):
         "adam4": tf.keras.optimizers.Adam(learning_rate=1e-4),
         "adam5": tf.keras.optimizers.Adam(learning_rate=1e-5),
         "adagrad": tf.keras.optimizers.Adagrad(),
-        "rmsprop": tf.keras.optimizers.RMSprop()
+        "rmsprop": tf.keras.optimizers.RMSprop(),
+        "sgd": tf.keras.optimizers.SGD(momentum=0.9),
+        "swa": tfa.optimizers.SWA(tf.keras.optimizers.SGD(learning_rate=0.001, momentum=0.9)),
+        "rectified_adam": tfa.optimizers.RectifiedAdam(min_lr=1e-10)
     }
 
     if opt_str not in optimizer_dict:
