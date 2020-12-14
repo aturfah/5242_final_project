@@ -226,8 +226,8 @@ def load_model_history(fname=Config.saved_results_fname):
     return output
 
 
-def save_model_history(model_hist):
-    pkl.dump(model_hist, open(Config.saved_results_fname, 'wb'))
+def save_model_history(model_hist, out_fname=Config.saved_results_fname):
+    pkl.dump(model_hist, open(out_fname, 'wb'))
 
 
 def clean_model_history(model_history):
