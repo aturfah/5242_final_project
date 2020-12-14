@@ -11,47 +11,33 @@ setwd("~/Documents/projects/5242_final_project/")
 DATASETS = c("MNIST",
              "Fashion-MNIST",
              "Kuzushiji-MNIST",
-             "CIFAR-10",
+             # "CIFAR-10",
              "Kuzushiji-49")
 data <- read_csv("proc_results.csv") %>%
   select(-c("X1")) %>%
   select(-starts_with("train"), -starts_with("valid"), -ends_with("loss")) %>%
-  select(-starts_with("med")) %>%
+  mutate(train_acc_range=max_train_acc - min_train_acc,
+         valid_acc_range=max_valid_acc - min_valid_acc,
+         test_acc_range=max_test_acc - min_test_acc) %>%
+  select(-starts_with("med"), -starts_with("min"), -starts_with("max") ) %>%
   mutate(dataset=factor(dataset, levels=DATASETS),
          architecture=factor(architecture,
                              levels=c("2FC",
                                       "Model C",
                                       "Strided CNN",
                                       "ConvPool CNN",
-                                      "All CNN"))) # %>% na.omit()
-
-temp_data <- data %>% 
-  filter(optimizer=="adam4") %>% 
-  arrange(desc(mean_test_acc))
-
-temp_data <- data %>%
-  filter(architecture != "2FC",
-         # dataset != "Kuzushiji-49",
-          initializer!="PEW",
-         min_test_acc < 0.15) %>%
-  arrange(initializer, desc(min_test_acc))
-
-temp_data %>% na.omit() %>%
-  # filter(dataset=="Fashion-MNIST") %>%
-  group_by(dataset) %>%
-  summarize(train_valid=mean(max_train_acc-max_valid_acc),
-            train_test=mean(max_train_acc-max_test_acc),
-            valid_test=mean(max_valid_acc-max_test_acc))
+                                      "All CNN"))) %>%
+  arrange(dataset, architecture, initializer, regularization) %>% na.omit()
 
 performance_summary <- function(data) {
   summarize(data,
-            `Mean Test Acc.`=mean(max_test_acc),
-            `Mean Test Acc.`=round(`Mean Test Acc.`, 3),
-            `Med. Test Acc.`=median(max_test_acc),
-            `Med. Test Acc.`=round(`Med. Test Acc.`, 3),
+            `Mean Test Acc.`=mean(mean_test_acc),
+            # `Mean Test Acc.`=round(`Mean Test Acc.`, 4),
+            `Test Acc. Range`=mean(test_acc_range),
+            # `Test Acc. Range`=round(`Test Acc. Range`, 4),
             ) %>%
     arrange(desc(`Mean Test Acc.`)) %>%
-    xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE)
+    xtable(digits=4, floating=FALSE,latex.environments=NULL,booktabs=TRUE)
 }
 
 
@@ -188,8 +174,8 @@ for (dataset_name in DATASETS) {
   ## Best Performance
   cat(paste("\n\n\n", dataset_name, " Top Performers\n", sep=""))
   filt_data  %>%
-    arrange(desc(max_test_acc)) %>%
-    select("architecture", "regularization", "initializer", "optimizer", ends_with("test_acc")) %>%
+    arrange(desc(mean_test_acc)) %>%
+    select("architecture", "regularization", "initializer", "optimizer", "mean_test_acc") %>%
     head(8) %>%
     xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
     print(include.rownames=FALSE)
@@ -229,5 +215,3 @@ for (dataset_name in DATASETS) {
 }
 rm(list=c("filt_data", "output_fname", "dataset_name"))
 
-
-temp_data <- 
