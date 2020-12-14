@@ -9,22 +9,22 @@ def handle_fold_performance(fold_info):
     output = {}
 
     epochs = []
+    for fold in fold_info:
+        epochs.append(fold["epochs"])
+
     for type_ in ["train", "valid", "test"]:
         output_key = "{}_{}_{}_{}".format("{}", "{}", type_, "{}")
         temp_acc = []
         for fold in fold_info:
             info = fold[type_]
             temp_acc.append(info[1])
-            if len(epochs) < 100 / Config.validation_pct:
-                # Way to check that number of folds isn't exceeded
-                epochs.append(fold["epochs"])
 
         output[output_key.format("{}", "mean", "acc")] = sum(temp_acc) / len(temp_acc)
         output[output_key.format("{}", "med", "acc")] = median(temp_acc)
         output[output_key.format("{}", "min", "acc")] = min(temp_acc)
         output[output_key.format("{}", "max", "acc")] = max(temp_acc)
 
-    output["avg_epochs"] = sum(epochs) / len(epochs)
+    output["{}_avg_epochs"] = sum(epochs) / len(epochs)
 
     return output
 
@@ -45,6 +45,8 @@ def process_results_dictionary(res):
                 output[key_] = Config.REGULARIZATION_MAP.get(res[key_])
             elif key_ == "initializer":
                 output[key_] = Config.INITIALIZATION_MAP.get(res[key_])
+            elif key_ == "optimizer":
+                output[key_] = Config.OPTIMIZER_MAP.get(res[key_])
             else:
                 output[key_] = res[key_]
 
@@ -73,7 +75,7 @@ def prepare_dataset(list_of_performance, dataset_name):
     performance_df = pd.DataFrame(list_of_performance)
     performance_df.drop(columns=["model_name"], inplace=True)
 
-    target_columns = list(performance_df.columns[0:4]) + ["avg_epochs"]
+    target_columns = list(performance_df.columns[0:4])
     target_columns = target_columns + ["^{}.*".format(dataset_name)]
 
     dataset_df = performance_df.filter(regex="|".join(target_columns))
