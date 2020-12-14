@@ -205,7 +205,7 @@ def process_optimizer(opt_str):
         "adagrad": tf.keras.optimizers.Adagrad(),
         "rmsprop": tf.keras.optimizers.RMSprop(),
         "sgd": tf.keras.optimizers.SGD(momentum=0.9),
-        "swa": tfa.optimizers.SWA(tf.keras.optimizers.SGD(learning_rate=0.001, momentum=0.9)),
+        "swa": tfa.optimizers.SWA(tf.keras.optimizers.SGD(momentum=0.9)),
         "rectified_adam": tfa.optimizers.RectifiedAdam(min_lr=1e-10)
     }
 
@@ -237,6 +237,9 @@ def clean_model_history(model_history):
     datasets = Config.DATASETS
     invalid_model_datasets = []
     for model_type in model_history.keys():
+        if model_type == "base_model":
+            continue
+
         for dataset in datasets:
             dataset_results = model_history[model_type].get(dataset)
 
