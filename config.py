@@ -12,7 +12,7 @@ class Config():
     if not logs_base_dir.exists():
         logs_base_dir.mkdir()
 
-    DATASETS = (MNIST, FASHION_MNIST, KMNIST, K49)
+    DATASETS = (K49, MNIST, KMNIST, FASHION_MNIST)
     # DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST)
 
     DATASET_IMAGE_SHAPE = {
@@ -77,8 +77,8 @@ class Config():
     # Optimizers for model fitting
     model_opt = [
         "adam", 
-        "swa", # FIGURE THIS OUT
-        "rectified_adam" # FIGURE THIS OUT
+        "swa",
+        "rectified_adam"
     ]
 
     ### Stuff for writing models to file
@@ -93,10 +93,10 @@ class Config():
 
     temp_model_arch = [
         "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
-        "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
-        "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
-        "c:32:3:1|c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
-        "c:32:3:1|c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
+        "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
+        "c:32:3:2|r|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
+        "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
+        "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
     ]
 
     ARCHITECTURE_MAP = {
@@ -117,6 +117,11 @@ class Config():
         model_init[1]: "Glorot Normal",
         model_init[2]: "Random Normal",
         model_init[3]: "Random Uniform"
+    }
+    OPTIMIZER_MAP = {
+        model_opt[0]: "Adam",
+        model_opt[1]: "SGD-SWA",
+        model_opt[2]: "RAdam"
     }
     DATASET_NAME_MAP = {
         MNIST: "MNIST",
