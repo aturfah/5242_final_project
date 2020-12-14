@@ -160,7 +160,21 @@ class LRFinder:
             n_skip_beginning - number of batches to skip on the left.
             n_skip_end - number of batches to skip on the right.
         """
-        plt.title("LR Curve for {}".format(dataset_name))
+        opt_title = {
+            "adam": "Adam",
+            "sgd": "SGD"
+        }[optimizer]
+
+        fmt_dataset = {
+            MNIST: "MNIST",
+            FASHION_MNIST: "Fashion-MNIST",
+            KMNIST: "Kuzushiji-MNIST",
+            K49: "Kuzushiji-49"
+        }[dataset_name]
+
+        plt.figure("{}_{}".format(optimizer, dataset_name))
+
+        plt.title("LR Curve for {} on {}".format(opt_title, fmt_dataset))
         plt.ylabel("loss")
         plt.xlabel("learning rate (log scale)")
         plt.plot(self.lrs[n_skip_beginning:-n_skip_end], self.losses[n_skip_beginning:-n_skip_end])
@@ -203,10 +217,9 @@ regularization = "B"
 initializer = "glorot_uniform"
 optimizer = "adam"
 model_type = "!".join([architecture, regularization, initializer, optimizer])
-dataset_name = FASHION_MNIST
+dataset_name = K49
 
 model_type = model_type.format(prediction_head=Config.DATASET_PREDICTION_HEAD[dataset_name])
-
 
 def create_model_function(name, dataset):
     architecture, regularization, initializer = model_type.split("!")[:3]
@@ -260,23 +273,23 @@ print(y_train.shape)
 
 # LR Finder Code
 lr_finder = LRFinder(model)
-lr_finder.find(x_train, y_train, start_lr=1e-10, end_lr=1, batch_size=256, epochs=1)
+lr_finder.find(x_train, y_train, start_lr=1e-6, end_lr=1, batch_size=128, epochs=1)
 lr_finder.plot_loss(n_skip_beginning=20, n_skip_end=5)
 
 
-# Make sure the model fits
-# model = tf.keras.Sequential([
-#     tf.keras.layers.Flatten(input_shape=(28, 28)),
-#     tf.keras.layers.Dense(128, activation='relu'),
-#     tf.keras.layers.Dense(10)
-# ])
-import tensorflow_addons as tfa
+# # Make sure the model fits
+# # model = tf.keras.Sequential([
+# #     tf.keras.layers.Flatten(input_shape=(28, 28)),
+# #     tf.keras.layers.Dense(128, activation='relu'),
+# #     tf.keras.layers.Dense(10)
+# # ])
+# import tensorflow_addons as tfa
 
-model = create_model_function(model_type, dataset_name)
-model.summary()
-opt = tf.keras.optimizers.Adam()
-model.compile(optimizer=tfa.optimizers.SWA(opt),
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['sparse_categorical_accuracy'])
+# model = create_model_function(model_type, dataset_name)
+# model.summary()
+# opt = tf.keras.optimizers.Adam()
+# model.compile(optimizer=tfa.optimizers.SWA(opt),
+#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+#               metrics=['sparse_categorical_accuracy'])
 
-model.fit(x_train, y_train, validation_data=valid_fold.batch(256), epochs=10)
+# model.fit(x_train, y_train, validation_data=valid_fold.batch(256), epochs=10)
