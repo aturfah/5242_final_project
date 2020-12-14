@@ -126,12 +126,14 @@ def fit_and_evaluate(model_type, dataset_name):
                     verbose=1,
                     callbacks=[tensorboard_callbacks]).history["loss"]
 
-        print("Took {}s ({}s total)\n".format(int(time.time() - start_time),
+        duration = int(time.time() - start_time)
+        print("Took {}s ({}s total)\n".format(duration,
                                             int(time.time() - abs_start_time)))
 
         backup_models.append((model_fold, model_path))
 
         output.append({
+            "time": duration,
             "epochs": len(hist),
             "train": model_fold.evaluate(train_fold.batch(512)),
             "valid": model_fold.evaluate(valid_fold.batch(512)),
