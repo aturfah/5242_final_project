@@ -64,8 +64,8 @@ class Config():
 
     # D is Dropout, B is BatchNorm
     model_regularization_layer = [
-        "B",
-        "D",
+        # "B",
+        # "D",
         "DB",
         "BD"
     ]
@@ -102,10 +102,10 @@ class Config():
         # model_arch[4]: "All CNN"
     }
     REGULARIZATION_MAP = {
-        model_regularization_layer[0]: "Dropout",
-        model_regularization_layer[1]: "BatchNorm",
-        model_regularization_layer[2]: "Dropout / BatchNorm",
-        model_regularization_layer[3]: "BatchNorm / Dropout"
+        # model_regularization_layer[0]: "Dropout",
+        # model_regularization_layer[1]: "BatchNorm",
+        # model_regularization_layer[2]: "Dropout / BatchNorm",
+        # model_regularization_layer[3]: "BatchNorm / Dropout"
     }
     INITIALIZATION_MAP = {
         model_init[0]: "Glorot Uniform",
