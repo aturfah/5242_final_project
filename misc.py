@@ -265,6 +265,36 @@ def clean_model_history(model_history):
     return model_history
 
 
+def merge_architecture_results(results1, results2):
+    """
+    For a given model, if one has more "proper"
+    (i.e. not loaded from a pre-fit model) results
+    then it is the one we go with.
+
+    Useful logic for when I copy pickle files.
+    """
+    output = deepcopy(results1)
+    for dataset in Config.DATASETS:
+        length1 = len(results1.get(dataset, []))
+        length2 = len(results2.get(dataset, []))
+        if length1 < length2:
+            """
+            len() -> [0, +inf) and so this condition
+            will only be met if dataset is in
+            results2 and is not empty (nothing
+            in that set is strictly less than 0)
+            """
+            output[dataset] = results2[dataset]
+            print(length1, length2, "Going with #2 on {}".format(dataset))
+        elif length1 > length2:
+            print(length1, length2, "Going with #1 on {}".format(dataset))
+        else:
+            print("Identical results on {}".format(dataset))
+
+
+    return output
+
+
 def merge_results(base_dict, target_dict):
     output = deepcopy(base_dict)
 
@@ -275,8 +305,10 @@ def merge_results(base_dict, target_dict):
 
     for key in tgt_keys:
         if key in shared_keys:
-            print("Ignoring: {}".format(key))
-        output[key] = target_dict[key]
+            print("Overlap on {}".format(key))
+            output[key] = merge_architecture_results(base_dict[key], target_dict[key])
+        else:
+            output[key] = target_dict[key]
 
     print(len(base_keys))
     print(len(tgt_keys))
