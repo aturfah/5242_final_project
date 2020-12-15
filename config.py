@@ -35,7 +35,12 @@ class Config():
 
     SEED = 2509
     DROPOUT_PROB = 0.5
-    TRAIN_BATCH_SIZE = 384
+    DATASET_BATCH_SIZE = {
+        MNIST: 384,
+        FASHION_MNIST: 384,
+        KMNIST: 384,
+        K49: 384
+    }
     MAX_TRAIN_EPOCHS = 200
 
     """

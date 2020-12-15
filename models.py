@@ -75,7 +75,7 @@ def fit_and_evaluate_fold(model_type, dataset_name, fold_idx):
         batch_size = 128
         num_epochs = 100
     else:
-        batch_size = Config().TRAIN_BATCH_SIZE
+        batch_size = Config().DATASET_BATCH_SIZE[dataset_name]
         model_type = model_type.format(prediction_head=Config.DATASET_PREDICTION_HEAD[dataset_name])
         def create_model_function(name, dataset):
             architecture, regularization, initializer = model_type.split("!")[:3]
