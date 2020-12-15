@@ -16,10 +16,11 @@ DATASETS = c("MNIST",
 data <- read_csv("proc_results.csv") %>%
   select(-c("X1")) %>%
   select(-starts_with("train"), -starts_with("valid"), -ends_with("loss")) %>%
-  mutate(train_acc_range=max_train_acc - min_train_acc,
-         valid_acc_range=max_valid_acc - min_valid_acc,
+  mutate(#train_acc_range=max_train_acc - min_train_acc,
+         #valid_acc_range=max_valid_acc - min_valid_acc,
          test_acc_range=max_test_acc - min_test_acc) %>%
-  select(-starts_with("med"), -starts_with("min"), -starts_with("max") ) %>%
+  select(-starts_with("med_train"), -starts_with("min_train"), -starts_with("max_train"), 
+         -starts_with("med_valid"), -starts_with("min_valid"), -starts_with("max_valid"), -starts_with("mean_valid")) %>%
   mutate(dataset=factor(dataset, levels=DATASETS),
          architecture=factor(architecture,
                              levels=c("2FC",
@@ -27,10 +28,11 @@ data <- read_csv("proc_results.csv") %>%
                                       "Strided CNN",
                                       "ConvPool CNN",
                                       "All CNN"))) %>%
-  arrange(dataset, architecture, initializer, regularization) %>% na.omit()
+  arrange(dataset, architecture, regularization, initializer, optimizer) %>% na.omit()
 
 performance_summary <- function(data) {
   summarize(data,
+            Num=n(),
             `Mean Test Acc.`=mean(mean_test_acc),
             # `Mean Test Acc.`=round(`Mean Test Acc.`, 4),
             `Test Acc. Range`=mean(test_acc_range),
