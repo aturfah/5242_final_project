@@ -12,8 +12,7 @@ class Config():
     if not logs_base_dir.exists():
         logs_base_dir.mkdir()
 
-    DATASETS = (MNIST, KMNIST, FASHION_MNIST)
-    # DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST)
+    DATASETS = (K49, )
 
     DATASET_IMAGE_SHAPE = {
         MNIST: (28, 28, 1),
@@ -56,8 +55,8 @@ class Config():
     - g is a global averaging layer
     """
     model_arch = [
-        "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
-        # "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
+        # "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
+        "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
         # "c:32:3:2|r|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
         # "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
         # "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
@@ -65,8 +64,8 @@ class Config():
 
     # D is Dropout, B is BatchNorm
     model_regularization_layer = [
-        "D",
         "B",
+        "D",
         "DB",
         "BD"
     ]
@@ -81,35 +80,26 @@ class Config():
 
     # Optimizers for model fitting
     model_opt = [
+        "swa", # FIGURE THIS OUT
+        "rectified_adam", # FIGURE THIS OUT
         "adam", 
-        "swa",
-        "rectified_adam"
     ]
 
     ### Stuff for writing models to file
-    saved_results_fname = "results_cv.pkl"
+    saved_results_fname = "results_cv7.pkl"
     saved_results_buffer = 1
 
-    old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in [2, 3, 4, 5]]
+    old_results_fnames = ["results_cv1.pkl"]
 
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
     base_results_fname = "base_results.csv"
-
-    temp_model_arch = [
-        "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
-        "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
-        "c:32:3:2|r|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
-        "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
-        "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
-    ]
-
     ARCHITECTURE_MAP = {
-        temp_model_arch[0]: "2FC",
-        temp_model_arch[1]: "Model C",
-        temp_model_arch[2]: "Strided CNN",
-        temp_model_arch[3]: "ConvPool CNN",
-        temp_model_arch[4]: "All CNN"
+        # model_arch[0]: "2FC",
+        # model_arch[1]: "Model C",
+        # model_arch[2]: "Strided CNN",
+        # model_arch[3]: "ConvPool CNN",
+        # model_arch[4]: "All CNN"
     }
     REGULARIZATION_MAP = {
         model_regularization_layer[0]: "Dropout",
@@ -122,16 +112,4 @@ class Config():
         model_init[1]: "Glorot Normal",
         model_init[2]: "Random Normal",
         model_init[3]: "Random Uniform"
-    }
-    OPTIMIZER_MAP = {
-        model_opt[0]: "Adam",
-        model_opt[1]: "SGD-SWA",
-        model_opt[2]: "RAdam"
-    }
-    DATASET_NAME_MAP = {
-        MNIST: "MNIST",
-        FASHION_MNIST: "Fashion-MNIST",
-        CIFAR10: "CIFAR-10",
-        KMNIST: "Kuzushiji-MNIST",
-        K49: "Kuzushiji-49"
     }

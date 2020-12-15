@@ -12,7 +12,7 @@ class Config():
     if not logs_base_dir.exists():
         logs_base_dir.mkdir()
 
-    DATASETS = (MNIST, FASHION_MNIST, KMNIST, K49)
+    DATASETS = (MNIST, FASHION_MNIST, KMNIST)
     # DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST)
 
     DATASET_IMAGE_SHAPE = {
