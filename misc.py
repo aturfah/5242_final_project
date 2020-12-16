@@ -287,9 +287,11 @@ def merge_architecture_results(results1, results2):
             output[dataset] = results2[dataset]
             print(length1, length2, "Going with #2 on {}".format(dataset))
         elif length1 > length2:
-            print(length1, length2, "Going with #1 on {}".format(dataset))
+            # print(length1, length2, "Going with #1 on {}".format(dataset))
+            pass
         else:
-            print("Identical results on {}".format(dataset))
+            # print("Identical results on {}".format(dataset))
+            pass
 
 
     return output
