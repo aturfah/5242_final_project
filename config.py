@@ -56,10 +56,10 @@ class Config():
     - g is a global averaging layer
     """
     model_arch = [
-        # "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
-        # "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
-        # "c:32:3:2|r|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
-        # "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
+        "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
+        "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
+        "c:32:3:2|r|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
+        "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
         "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
     ]
 
@@ -67,8 +67,8 @@ class Config():
     model_regularization_layer = [
         "D",
         "B",
-        # "DB",
-        # "BD"
+        "DB",
+        "BD"
     ]
 
     # Initializers for layer params
@@ -91,32 +91,24 @@ class Config():
     saved_results_buffer = 1
 
     old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in range(1, 11)] +\
-         ["finished_pickles/results_cv.pkl", "finished_pickles/results_cv2.pkl", "finished_pickles/results_cv11.pkl", "finished_pickles/results_cv3.pkl", "finished_pickles/results_cv12.pkl"]
+         ["finished_pickles/results_cv.pkl"] + ["finished_pickles/results_cv{}.pkl".format(idx) for idx in range(1, 15)]
 
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
     base_results_fname = "base_results.csv"
 
-    temp_model_arch = [
-        "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
-        "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
-        "c:32:3:2|r|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
-        "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
-        "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
-    ]
-
     ARCHITECTURE_MAP = {
-        temp_model_arch[0]: "2FC",
-        temp_model_arch[1]: "Model C",
-        temp_model_arch[2]: "Strided CNN",
-        temp_model_arch[3]: "ConvPool CNN",
-        temp_model_arch[4]: "All CNN"
+        model_arch[0]: "2FC",
+        model_arch[1]: "Model C",
+        model_arch[2]: "Strided CNN",
+        model_arch[3]: "ConvPool CNN",
+        model_arch[4]: "All CNN"
     }
     REGULARIZATION_MAP = {
-        # model_regularization_layer[0]: "Dropout",
-        # model_regularization_layer[1]: "BatchNorm",
-        # model_regularization_layer[2]: "Dropout / BatchNorm",
-        # model_regularization_layer[3]: "BatchNorm / Dropout"
+        model_regularization_layer[0]: "Dropout",
+        model_regularization_layer[1]: "BatchNorm",
+        model_regularization_layer[2]: "Dropout / BatchNorm",
+        model_regularization_layer[3]: "BatchNorm / Dropout"
     }
     INITIALIZATION_MAP = {
         model_init[0]: "Glorot Uniform",
