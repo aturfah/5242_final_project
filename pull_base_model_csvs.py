@@ -16,7 +16,7 @@ if __name__ == "__main__":
     if not exists(LOGS_DIR):
         mkdir(LOGS_DIR)
 
-    TENSORBOARD_URL = "http://localhost:6006"
+    TENSORBOARD_URL = "http://localhost:6006" # Replace with whatever is on our system
     BASE_URL = "{}/{}".format(TENSORBOARD_URL, "data/plugin/scalars/scalars?tag={TAG}&run={RUN_ID}/{MODE}&format=csv")
     TAGS = ["epoch_loss", "epoch_sparse_categorical_accuracy"]
     RUN_ID = "base_model_{dataset}_{fold}"
