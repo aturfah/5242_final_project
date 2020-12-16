@@ -28,7 +28,7 @@ data <- read_csv("proc_results.csv") %>%
                                       "Strided CNN",
                                       "ConvPool CNN",
                                       "All CNN"))) %>%
-  arrange(dataset, architecture, regularization, initializer, optimizer) %>% na.omit()
+  arrange(dataset, architecture, regularization, initializer, optimizer) # %>% na.omit()
 
 performance_summary <- function(data) {
   summarize(data,
@@ -92,7 +92,7 @@ data %>%
   geom_density(alpha=0.5, size=0.7) +
   scale_fill_hue(h=c(30, 330), l=70, direction=-1) +
   labs(title="", x="Test Accuracy", y="Density") +
-  facet_grid(architecture ~ dataset) +
+  facet_grid(dataset ~ architecture, scales="free_y") +
   labs(fill="Architecture", linetype="Architecture") +
   theme_classic() +
   theme(text=element_text(size=14),
@@ -106,7 +106,7 @@ data %>%
   geom_density(alpha=0.5, size=0.7) +
   scale_fill_hue(h=c(30, 330), l=70, direction=-1) +
   labs(title="", x="Test Accuracy", y="Density") +
-  facet_grid(optimizer ~ dataset) +
+  facet_grid(dataset ~ optimizer, scales="free_y") +
   theme_classic() +
   theme(text=element_text(size=14),
         legend.position = "none")
@@ -147,7 +147,7 @@ data %>%
   scale_fill_hue(h=c(30, 330), l=70, direction=-1) +
   labs(title="", x="Test Accuracy",
        y="Density", fill="Optimizer") +
-  facet_grid(architecture ~ dataset) +
+  facet_grid(dataset ~ architecture, scales="free_y") +
   theme_classic() +
   theme(text=element_text(size=14),
         legend.position = "right")
@@ -213,7 +213,7 @@ for (dataset_name in DATASETS) {
   ## RF. Analysis
   output_fname = paste("images/", dataset_name,
                        "_rf_variable_importance.png", sep="")
-  # random_forest_results(filt_data, output_fname)
+  # random_forest_results(filt_data %>% select(-"regularizer"), output_fname)
 }
 rm(list=c("filt_data", "output_fname", "dataset_name"))
 
