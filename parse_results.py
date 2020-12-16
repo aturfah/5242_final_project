@@ -25,6 +25,7 @@ def handle_fold_performance(fold_info):
         output[output_key.format("{}", "max", "acc")] = max(temp_acc)
 
     output["{}_avg_epochs"] = sum(epochs) / len(epochs)
+    output["{}_num_folds"] = len(fold_info)
 
     return output
 
