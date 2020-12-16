@@ -160,7 +160,7 @@ data %>%
   scale_fill_hue(h=c(30, 330), l=70, direction=-1) +
   labs(title="", x="Test Accuracy",
        y="Density", fill="Regularization") +
-  facet_grid(architecture ~ dataset) +
+  facet_grid(dataset ~ architecture, scales="free_y") +
   theme_classic() +
   theme(text=element_text(size=14),
         legend.position = "right")
