@@ -12,7 +12,7 @@ class Config():
     if not logs_base_dir.exists():
         logs_base_dir.mkdir()
 
-    DATASETS = (MNIST, KMNIST, FASHION_MNIST)
+    DATASETS = (MNIST, KMNIST, FASHION_MNIST, K49)
     # DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST)
 
     DATASET_IMAGE_SHAPE = {
@@ -90,7 +90,8 @@ class Config():
     saved_results_fname = "results_cv.pkl"
     saved_results_buffer = 1
 
-    old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in [2, 3, 4, 5]]
+    old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in range(1, 11)] +\
+         ["finished_pickles/results_cv.pkl", "finished_pickles/results_cv2.pkl", "finished_pickles/results_cv11.pkl", "finished_pickles/results_cv3.pkl", "finished_pickles/results_cv12.pkl"]
 
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
