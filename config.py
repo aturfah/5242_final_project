@@ -38,6 +38,7 @@ class Config():
     DATASET_BATCH_SIZE = {
         MNIST: 384,
         FASHION_MNIST: 384,
+        CIFAR10: 384
         KMNIST: 384,
         K49: 384
     }
