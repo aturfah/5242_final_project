@@ -12,8 +12,8 @@ class Config():
     if not logs_base_dir.exists():
         logs_base_dir.mkdir()
 
-    DATASETS = (CIFAR10, )
-    # DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST)
+    DATASETS = (K49, )
+    # DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49)
 
     DATASET_IMAGE_SHAPE = {
         MNIST: (28, 28, 1),
@@ -58,10 +58,10 @@ class Config():
     """
     model_arch = [
         "f|d:16|r|d:16|d:{prediction_head}", # Dumb linear models
-        # "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
-        # "c:32:3:2|r|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
-        # "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
-        # "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
+        "c:32:3:1|p:3|r|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Model C
+        "c:32:3:2|r|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # Strided CNN-C
+        "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # ConvPool-CNN-C
+        "c:32:3:1|c:32:3:2|r|c:64:3:1|c:64:3:2|r|c:64:3:1|c:64:1:1|c:{prediction_head}:1:1|g", # All-CNN-C
     ]
 
     # D is Dropout, B is BatchNorm
@@ -82,9 +82,10 @@ class Config():
 
     # Optimizers for model fitting
     model_opt = [
-        "adam", 
-        "swa",
-        "rectified_adam"
+        # "adam", 
+        # "swa",
+        # "rectified_adam",
+        "sgd"
     ]
 
     ### Stuff for writing models to file
