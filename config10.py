@@ -12,7 +12,8 @@ class Config():
     if not logs_base_dir.exists():
         logs_base_dir.mkdir()
 
-    DATASETS = (CIFAR10, )
+    DATASETS = (K49, )
+    # DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49)
 
     DATASET_IMAGE_SHAPE = {
         MNIST: (28, 28, 1),
@@ -37,6 +38,7 @@ class Config():
     DATASET_BATCH_SIZE = {
         MNIST: 384,
         FASHION_MNIST: 384,
+        CIFAR10: 384,
         KMNIST: 384,
         K49: 384
     }
@@ -64,16 +66,16 @@ class Config():
 
     # D is Dropout, B is BatchNorm
     model_regularization_layer = [
-        "B",
         "D",
+        "B",
         "DB",
         "BD"
     ]
 
     # Initializers for layer params
     model_init = [
-        "glorot_uniform", # Default
-        "glorot_normal",
+        # "glorot_uniform", # Default
+        # "glorot_normal",
         'random_normal',
         'random_uniform'
     ]
@@ -87,14 +89,16 @@ class Config():
     ]
 
     ### Stuff for writing models to file
-    saved_results_fname = "results_allcnn_cifar.pkl"
+    saved_results_fname = "results_sgd_k49_random.pkl"
     saved_results_buffer = 1
 
-    old_results_fnames = ["results_cv1.pkl"]
+    old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in range(1, 11)] +\
+         ["finished_pickles/results_cv.pkl"] + ["finished_pickles/results_cv{}.pkl".format(idx) for idx in range(1, 15)]
 
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
     base_results_fname = "base_results.csv"
+
     ARCHITECTURE_MAP = {
         # model_arch[0]: "2FC",
         # model_arch[1]: "Model C",
@@ -113,4 +117,16 @@ class Config():
         model_init[1]: "Glorot Normal",
         model_init[2]: "Random Normal",
         model_init[3]: "Random Uniform"
+    }
+    OPTIMIZER_MAP = {
+        model_opt[0]: "Adam",
+        model_opt[1]: "SGD-SWA",
+        model_opt[2]: "RAdam"
+    }
+    DATASET_NAME_MAP = {
+        MNIST: "MNIST",
+        FASHION_MNIST: "Fashion-MNIST",
+        CIFAR10: "CIFAR-10",
+        KMNIST: "Kuzushiji-MNIST",
+        K49: "Kuzushiji-49"
     }

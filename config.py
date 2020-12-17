@@ -76,8 +76,8 @@ class Config():
     model_init = [
         "glorot_uniform", # Default
         "glorot_normal",
-        'random_normal',
-        'random_uniform'
+        # 'random_normal',
+        # 'random_uniform'
     ]
 
     # Optimizers for model fitting
@@ -89,7 +89,7 @@ class Config():
     ]
 
     ### Stuff for writing models to file
-    saved_results_fname = "results_2FC_cifar.pkl"
+    saved_results_fname = "results_sgd_k49_glorot.pkl"
     saved_results_buffer = 1
 
     old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in range(1, 11)] +\

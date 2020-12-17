@@ -88,7 +88,7 @@ class Config():
     ]
 
     ### Stuff for writing models to file
-    saved_results_fname = "results_convpool_cifar.pkl"
+    saved_results_fname = "results_sgd_kmnist.pkl"
     saved_results_buffer = 1
 
     old_results_fnames = ["results_cv1.pkl"]
