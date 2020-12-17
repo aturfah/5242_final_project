@@ -38,7 +38,7 @@ class Config():
     DATASET_BATCH_SIZE = {
         MNIST: 384,
         FASHION_MNIST: 384,
-        CIFAR10: 384
+        CIFAR10: 384,
         KMNIST: 384,
         K49: 384
     }
@@ -99,11 +99,11 @@ class Config():
     base_results_fname = "base_results.csv"
 
     ARCHITECTURE_MAP = {
-        model_arch[0]: "2FC",
-        model_arch[1]: "Model C",
-        model_arch[2]: "Strided CNN",
-        model_arch[3]: "ConvPool CNN",
-        model_arch[4]: "All CNN"
+        # model_arch[0]: "2FC",
+        # model_arch[1]: "Model C",
+        # model_arch[2]: "Strided CNN",
+        # model_arch[3]: "ConvPool CNN",
+        # model_arch[4]: "All CNN"
     }
     REGULARIZATION_MAP = {
         model_regularization_layer[0]: "Dropout",
