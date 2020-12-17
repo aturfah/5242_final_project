@@ -12,7 +12,7 @@ class Config():
     if not logs_base_dir.exists():
         logs_base_dir.mkdir()
 
-    DATASETS = (K49, )
+    DATASETS = (CIFAR10, )
 
     DATASET_IMAGE_SHAPE = {
         MNIST: (28, 28, 1),
@@ -86,7 +86,7 @@ class Config():
     ]
 
     ### Stuff for writing models to file
-    saved_results_fname = "results_cv7.pkl"
+    saved_results_fname = "results_MC_cifar.pkl"
     saved_results_buffer = 1
 
     old_results_fnames = ["results_cv1.pkl"]
