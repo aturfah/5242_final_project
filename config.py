@@ -113,15 +113,15 @@ class Config():
         model_regularization_layer[3]: "BatchNorm / Dropout"
     }
     INITIALIZATION_MAP = {
-        model_init[0]: "Glorot Uniform",
-        model_init[1]: "Glorot Normal",
-        model_init[2]: "Random Normal",
-        model_init[3]: "Random Uniform"
+        # model_init[0]: "Glorot Uniform",
+        # model_init[1]: "Glorot Normal",
+        # model_init[2]: "Random Normal",
+        # model_init[3]: "Random Uniform"
     }
     OPTIMIZER_MAP = {
-        model_opt[0]: "Adam",
-        model_opt[1]: "SGD-SWA",
-        model_opt[2]: "RAdam"
+        # model_opt[0]: "Adam",
+        # model_opt[1]: "SGD-SWA",
+        # model_opt[2]: "RAdam"
     }
     DATASET_NAME_MAP = {
         MNIST: "MNIST",

@@ -94,39 +94,3 @@ class Config():
 
     old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in range(1, 11)] +\
          ["finished_pickles/results_cv.pkl"] + ["finished_pickles/results_cv{}.pkl".format(idx) for idx in range(1, 15)]
-
-    ### For generate_results.py
-    proc_results_fname = "proc_results.csv"
-    base_results_fname = "base_results.csv"
-
-    ARCHITECTURE_MAP = {
-        # model_arch[0]: "2FC",
-        # model_arch[1]: "Model C",
-        # model_arch[2]: "Strided CNN",
-        # model_arch[3]: "ConvPool CNN",
-        # model_arch[4]: "All CNN"
-    }
-    REGULARIZATION_MAP = {
-        model_regularization_layer[0]: "Dropout",
-        model_regularization_layer[1]: "BatchNorm",
-        model_regularization_layer[2]: "Dropout / BatchNorm",
-        model_regularization_layer[3]: "BatchNorm / Dropout"
-    }
-    INITIALIZATION_MAP = {
-        model_init[0]: "Glorot Uniform",
-        model_init[1]: "Glorot Normal",
-        model_init[2]: "Random Normal",
-        model_init[3]: "Random Uniform"
-    }
-    OPTIMIZER_MAP = {
-        model_opt[0]: "Adam",
-        model_opt[1]: "SGD-SWA",
-        model_opt[2]: "RAdam"
-    }
-    DATASET_NAME_MAP = {
-        MNIST: "MNIST",
-        FASHION_MNIST: "Fashion-MNIST",
-        CIFAR10: "CIFAR-10",
-        KMNIST: "Kuzushiji-MNIST",
-        K49: "Kuzushiji-49"
-    }
