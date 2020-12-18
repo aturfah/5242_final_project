@@ -50,12 +50,12 @@ total_models = 1 + len(Config.model_arch) * \
                 len(Config.DATASETS) * 5
 
 counter = 1
-for fold in range(5):
-    for optimizer in Config.model_opt:
-        for initializer in Config.model_init:
-            for regularization in Config.model_regularization_layer:
-                for architecture in Config.model_arch:
-                    for dataset in Config.DATASETS:
+for optimizer in Config.model_opt:
+    for initializer in Config.model_init:
+        for regularization in Config.model_regularization_layer:
+            for architecture in Config.model_arch:
+                for dataset in Config.DATASETS:
+                    for fold in range(5):
                         # Check if results have already been processesd
                         counter += 1
                         model_name = "!".join([architecture, regularization, initializer, optimizer])
