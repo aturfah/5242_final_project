@@ -13,7 +13,7 @@ class Config():
         logs_base_dir.mkdir()
 
     # DATASETS = (K49, )
-    DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49)
+    DATASETS = (MNIST, FASHION_MNIST, KMNIST, K49)
 
     DATASET_IMAGE_SHAPE = {
         MNIST: (28, 28, 1),
@@ -92,7 +92,8 @@ class Config():
     saved_results_fname = "results_cv.pkl"
     saved_results_buffer = 1
 
-    old_results_dir = "finished_pickles"
+    # old_results_dir = "finished_pickles"
+    old_results_dir = "test_finished_pickles"
 
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
