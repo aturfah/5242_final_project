@@ -12,8 +12,8 @@ class Config():
     if not logs_base_dir.exists():
         logs_base_dir.mkdir()
 
-    DATASETS = (K49, )
-    # DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49)
+    # DATASETS = (K49, )
+    DATASETS = (MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49)
 
     DATASET_IMAGE_SHAPE = {
         MNIST: (28, 28, 1),
@@ -89,7 +89,7 @@ class Config():
     ]
 
     ### Stuff for writing models to file
-    saved_results_fname = "results_sgd_k49_glorot.pkl"
+    saved_results_fname = "results_cv.pkl"
     saved_results_buffer = 1
 
     old_results_dir = "finished_pickles"
