@@ -323,7 +323,11 @@ def merge_results(base_dict, target_dict):
     return output
 
 def read_filenames_in_directory(dir_path, extension="pkl"):
-    all_dir = listdir(dir_path)
+    try:
+        all_dir = listdir(dir_path)
+    except Exception:
+        return []
+
     all_files = [f for f in all_dir if isfile(join(dir_path, f))]
     pkl_files = [f for f in all_files if f.endswith(extension)]
     abs_pkl_files = ["{}/{}".format(dir_path, f) for f in pkl_files]
