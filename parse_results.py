@@ -113,8 +113,6 @@ if __name__ == "__main__":
 
     results_pkls = read_directory(Config.old_results_dir)
 
-    print(results_pkls)
-
     for old_fname in results_pkls:
         loop_cv_results = merge_results(loop_cv_results,
             clean_model_history(load_model_history(old_fname)))

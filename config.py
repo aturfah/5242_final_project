@@ -93,10 +93,6 @@ class Config():
     saved_results_buffer = 1
 
     old_results_dir = "finished_pickles"
-    # old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in range(1, 11)] +\
-    #      ["finished_pickles/results_cv.pkl"] +\
-    #           ["finished_pickles/results_cv{}.pkl".format(idx) for idx in range(1, 15)] +\
-    #               ["finished_pickles/results_sgd_fmnist"]
 
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
