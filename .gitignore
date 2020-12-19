@@ -17,3 +17,4 @@ logs/
 base_logs/
 images/
 *.csv
+*.txt
