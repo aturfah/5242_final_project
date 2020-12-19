@@ -76,15 +76,15 @@ class Config():
     model_init = [
         "glorot_uniform", # Default
         "glorot_normal",
-        # 'random_normal',
-        # 'random_uniform'
+        'random_normal',
+        'random_uniform'
     ]
 
     # Optimizers for model fitting
     model_opt = [
-        # "adam", 
-        # "swa",
-        # "rectified_adam",
+        "adam", 
+        "swa",
+        "rectified_adam",
         "sgd"
     ]
 
@@ -92,19 +92,22 @@ class Config():
     saved_results_fname = "results_sgd_k49_glorot.pkl"
     saved_results_buffer = 1
 
-    old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in range(1, 11)] +\
-         ["finished_pickles/results_cv.pkl"] + ["finished_pickles/results_cv{}.pkl".format(idx) for idx in range(1, 15)]
+    old_results_dir = "finished_pickles"
+    # old_results_fnames = ["results_cv{}.pkl".format(idx) for idx in range(1, 11)] +\
+    #      ["finished_pickles/results_cv.pkl"] +\
+    #           ["finished_pickles/results_cv{}.pkl".format(idx) for idx in range(1, 15)] +\
+    #               ["finished_pickles/results_sgd_fmnist"]
 
     ### For generate_results.py
     proc_results_fname = "proc_results.csv"
     base_results_fname = "base_results.csv"
 
     ARCHITECTURE_MAP = {
-        # model_arch[0]: "2FC",
-        # model_arch[1]: "Model C",
-        # model_arch[2]: "Strided CNN",
-        # model_arch[3]: "ConvPool CNN",
-        # model_arch[4]: "All CNN"
+        model_arch[0]: "2FC",
+        model_arch[1]: "Model C",
+        model_arch[2]: "Strided CNN",
+        model_arch[3]: "ConvPool CNN",
+        model_arch[4]: "All CNN"
     }
     REGULARIZATION_MAP = {
         model_regularization_layer[0]: "Dropout",
@@ -113,15 +116,16 @@ class Config():
         model_regularization_layer[3]: "BatchNorm / Dropout"
     }
     INITIALIZATION_MAP = {
-        # model_init[0]: "Glorot Uniform",
-        # model_init[1]: "Glorot Normal",
-        # model_init[2]: "Random Normal",
-        # model_init[3]: "Random Uniform"
+        model_init[0]: "Glorot Uniform",
+        model_init[1]: "Glorot Normal",
+        model_init[2]: "Random Normal",
+        model_init[3]: "Random Uniform"
     }
     OPTIMIZER_MAP = {
-        # model_opt[0]: "Adam",
-        # model_opt[1]: "SGD-SWA",
-        # model_opt[2]: "RAdam"
+        model_opt[0]: "Adam",
+        model_opt[1]: "SGD-SWA",
+        model_opt[2]: "RAdam",
+        model_opt[3]: "SGD"
     }
     DATASET_NAME_MAP = {
         MNIST: "MNIST",
