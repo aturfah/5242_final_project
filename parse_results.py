@@ -15,13 +15,13 @@ def handle_fold_performance(fold_info):
         epochs.append(fold["epochs"])
 
     for type_ in ["train", "valid", "test"]:
-        output_key = "{}_{}_{}_{}".format("{}", "{}", type_, "{}")
+        output_key = "{}_{}_{}".format("{}", type_, "{}")
         temp_acc = []
         for fold in fold_info:
             info = fold[type_]
             temp_acc.append(info[1])
 
-        output[output_key.format("{}", "mean", "acc")] = sum(temp_acc) / len(temp_acc)
+        output[output_key.format("{}", "acc")] = sum(temp_acc) / len(temp_acc)
 
     output["{}_avg_epochs"] = sum(epochs) / len(epochs)
     output["{}_num_folds"] = len(fold_info)
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             model_performance.append(process_results_dictionary(res))
 
     ## Prepare Base Model results & Write for R analysis
-    # prepare_output_df([base_model_results]).to_csv(Config.base_results_fname)
+    prepare_output_df([base_model_results]).to_csv(Config.base_results_fname)
 
     ## Write out model results for the rest of them
     prepare_output_df(model_performance).to_csv(Config.proc_results_fname)
