@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 for temp in {1..1000..1}
 do
     clear
