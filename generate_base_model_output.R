@@ -5,7 +5,6 @@ require(xtable)
 setwd("~/Documents/projects/5242_final_project/")
 ### Base Results
 base_data <- read_csv("base_results.csv") %>%
-  select("dataset", starts_with("mean_train"), starts_with("mean_valid"), starts_with("mean_test")) %>%
   select("dataset", ends_with("acc"))
 
 base_data %>%
