@@ -5,6 +5,8 @@ import pandas as pd
 from copy import deepcopy
 from numpy import median
 
+from pprint import pprint
+
 def handle_fold_performance(fold_info):
     output = {}
 
@@ -20,9 +22,6 @@ def handle_fold_performance(fold_info):
             temp_acc.append(info[1])
 
         output[output_key.format("{}", "mean", "acc")] = sum(temp_acc) / len(temp_acc)
-        output[output_key.format("{}", "med", "acc")] = median(temp_acc)
-        output[output_key.format("{}", "min", "acc")] = min(temp_acc)
-        output[output_key.format("{}", "max", "acc")] = max(temp_acc)
 
     output["{}_avg_epochs"] = sum(epochs) / len(epochs)
     output["{}_num_folds"] = len(fold_info)
@@ -102,9 +101,10 @@ if __name__ == "__main__":
     results_pkls = read_filenames_in_directory(Config.old_results_dir)
 
     for old_fname in results_pkls:
-        print(old_fname)
         loop_cv_results = merge_results(loop_cv_results,
             clean_model_history(load_model_history(old_fname)))
+
+    print(len(loop_cv_results.keys()))
 
     model_performance = []
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             model_performance.append(process_results_dictionary(res))
 
     ## Prepare Base Model results & Write for R analysis
-    prepare_output_df([base_model_results]).to_csv(Config.base_results_fname)
+    # prepare_output_df([base_model_results]).to_csv(Config.base_results_fname)
 
     ## Write out model results for the rest of them
     prepare_output_df(model_performance).to_csv(Config.proc_results_fname)
