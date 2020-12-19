@@ -1,12 +1,9 @@
 from config import Config
 from config import MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49
-from misc import load_model_history, clean_model_history, merge_results
+from misc import load_model_history, clean_model_history, merge_results, read_filenames_in_directory
 import pandas as pd
 from copy import deepcopy
 from numpy import median
-
-from os import listdir
-from os.path import isfile, join
 
 def handle_fold_performance(fold_info):
     output = {}
@@ -98,22 +95,14 @@ def prepare_output_df(list_of_performance):
     return pd.concat(list_of_df)
 
 
-def read_directory(dir_path):
-    all_dir = listdir(dir_path)
-    all_files = [f for f in all_dir if isfile(join(dir_path, f))]
-    pkl_files = [f for f in all_files if f.endswith("pkl")]
-    abs_pkl_files = ["{}/{}".format(dir_path, f) for f in pkl_files]
-
-    return sorted(abs_pkl_files)
-
-
 if __name__ == "__main__":
     base_model_results = None
     loop_cv_results = clean_model_history(load_model_history())
 
-    results_pkls = read_directory(Config.old_results_dir)
+    results_pkls = read_filenames_in_directory(Config.old_results_dir)
 
     for old_fname in results_pkls:
+        print(old_fname)
         loop_cv_results = merge_results(loop_cv_results,
             clean_model_history(load_model_history(old_fname)))
 

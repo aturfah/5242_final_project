@@ -4,11 +4,15 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 import tensorflow_datasets as tfds
 import numpy as np
+from copy import deepcopy
+
+from os import listdir
+from os.path import isfile, join
+
 
 import pickle as pkl
 
 from config import Config
-from copy import deepcopy
 
 def prepare_log_dir():
     logs_base_dir = Config().logs_base_dir
@@ -285,9 +289,9 @@ def merge_architecture_results(results1, results2):
             in that set is strictly less than 0)
             """
             output[dataset] = results2[dataset]
-            # print(length1, length2, "Going with #2 on {}".format(dataset))
+            print(length1, length2, "Going with #2 on {}".format(dataset))
         elif length1 > length2:
-            # print(length1, length2, "Going with #1 on {}".format(dataset))
+            print(length1, length2, "Going with #1 on {}".format(dataset))
             pass
         else:
             # print("Identical results on {}".format(dataset))
@@ -307,7 +311,7 @@ def merge_results(base_dict, target_dict):
 
     for key in tgt_keys:
         if key in shared_keys:
-            # print("Overlap on {}".format(key))
+            print("Overlap on {}".format(key))
             output[key] = merge_architecture_results(base_dict[key], target_dict[key])
         else:
             output[key] = target_dict[key]
@@ -317,3 +321,11 @@ def merge_results(base_dict, target_dict):
     print(len(output.keys()))
 
     return output
+
+def read_filenames_in_directory(dir_path, extension="pkl"):
+    all_dir = listdir(dir_path)
+    all_files = [f for f in all_dir if isfile(join(dir_path, f))]
+    pkl_files = [f for f in all_files if f.endswith(extension)]
+    abs_pkl_files = ["{}/{}".format(dir_path, f) for f in pkl_files]
+
+    return sorted(abs_pkl_files)
