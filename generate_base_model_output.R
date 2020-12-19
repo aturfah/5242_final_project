@@ -8,6 +8,10 @@ base_data <- read_csv("base_results.csv") %>%
   select("dataset", ends_with("acc"))
 
 base_data %>%
+  group_by(dataset) %>%
+  summarize(`Train Acc.`=mean(train_acc),
+            `Valid Acc.`=mean(valid_acc),
+            `Test Acc.`=mean(test_acc)) %>%
   xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
   print(include.rownames=FALSE)
 

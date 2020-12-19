@@ -35,11 +35,15 @@ data_2fc <- filter(all_data, architecture == "2FC")
 
 performance_summary <- function(data) {
   summarize(data,
-            Num=n(),
             `Mean Test Acc.`=mean(test_acc),
             # `Mean Test Acc.`=round(`Mean Test Acc.`, 4),
-            `Test Acc. Range`=paste("(", quantile(test_acc, 0.025), ",", quantile(test_acc, 0.975), ")", sep=""),
+            q_lower=quantile(test_acc, 0.05),
+            q_upper=quantile(test_acc, 0.95),
+            q_lower=round(q_lower, 4),
+            q_upper=round(q_upper, 4),
+            `90% Test Acc. Range`=paste("(", q_lower, ", ", q_upper, ")", sep=""),
             ) %>%
+    select(-c(q_lower, q_upper)) %>%
     arrange(desc(`Mean Test Acc.`)) %>%
     xtable(digits=4, floating=FALSE,latex.environments=NULL,booktabs=TRUE)
 }
@@ -50,6 +54,8 @@ random_forest_results <- function(data, out_fname) {
   tree_data <- data %>%
     select(architecture, regularization, initializer, optimizer,
            test_acc) %>%
+    group_by(architecture, regularization, initializer, optimizer) %>%
+    summarize(test_acc=mean(test_acc)) %>%
     mutate(regularization=as.factor(regularization),
            initializer=as.factor(initializer),
            optimizer=as.factor(optimizer))  
@@ -58,14 +64,14 @@ random_forest_results <- function(data, out_fname) {
                           data = tree_data,
                           importance = TRUE)
   
-  cat("\n\n\n(NON-2FC) Random Forest Performance\n")
+  cat("\n\n\n Random Forest Performance\n")
   print(data_rf)
   
   data_imp <- as_tibble(importance(data_rf)) %>%
     mutate(variable=str_to_title(rownames(importance(data_rf)))) %>%
     arrange(desc(`%IncMSE`))
   
-  cat("\n\n\n(NON-2FC) Random Forest Variable Importance\n")
+  cat("\n\n\n Random Forest Variable Importance\n")
   data_imp %>%
     rename(Variable=variable,
            `Pct. Inc. MSE`=`%IncMSE`,
@@ -180,101 +186,62 @@ dev.off()
 
 
 ########### Results By Dataset ###############
-for (dataset_name in DATASETS) {
-  filt_data <- filter(data_cnn, dataset==dataset_name) %>%
-    select(-c("dataset"))
-  
-  ## Best Performance
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Top Performers\n", sep=""))
-  filt_data  %>%
+generate_output <- function(data_) {
+  for (dataset_name in DATASETS) {
+    filt_data <- filter(data_, dataset==dataset_name) %>%
+      select(-c("dataset"))
+    
+    ## Best Performance
+    cat(paste("\n\n\n", dataset_name, " Top Performers\n", sep=""))
+    filt_data  %>%
+      group_by(architecture, regularization, initializer, optimizer) %>%
+      summarize(test_acc=mean(test_acc)) %>%
     arrange(desc(test_acc)) %>%
-    select("architecture", "regularization", "initializer", "optimizer", "test_acc") %>%
-    head(8) %>%
-    xtable(digits=4, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
-    print(include.rownames=FALSE)
-
-  ## Compare results across Architectures
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Architectures\n", sep=""))
-  filt_data %>%
-    group_by(architecture) %>%
-    performance_summary() %>%
-    print(include.rownames=FALSE)
-
-  ## Compare results across Initialization
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Initialization\n", sep=""))
-  filt_data %>%
-    group_by(initializer) %>%
-    performance_summary() %>%
-    print(include.rownames=FALSE)
-
-  ## Compare results across optimizer
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Optimizers\n", sep=""))
-  filt_data %>%
-    group_by(optimizer) %>%
-    performance_summary() %>%
-    print(include.rownames=FALSE)
-
-  ## Compare results across Regularizer
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Regularizers\n", sep=""))
-  filt_data %>%
-    group_by(regularization) %>%
-    performance_summary() %>%
-    print(include.rownames=FALSE)
-  
-  ## RF. Analysis
-  output_fname = paste("images/", dataset_name,
-                       "_rf_variable_importance.png", sep="")
-  random_forest_results(filt_data, output_fname)
+      select("architecture", "regularization", "initializer", "optimizer", "test_acc") %>%
+      head(8) %>%
+      xtable(digits=4, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
+      print(include.rownames=FALSE)
+    
+    ## Compare results across Architectures
+    cat(paste("\n\n\n ", dataset_name, " Architectures\n", sep=""))
+    filt_data %>%
+      group_by(architecture) %>%
+      performance_summary() %>%
+      print(include.rownames=FALSE)
+    
+    ## Compare results across Initialization
+    cat(paste("\n\n\n ", dataset_name, " Initialization\n", sep=""))
+    filt_data %>%
+      group_by(initializer) %>%
+      performance_summary() %>%
+      print(include.rownames=FALSE)
+    
+    ## Compare results across optimizer
+    cat(paste("\n\n\n ", dataset_name, " Optimizers\n", sep=""))
+    filt_data %>%
+      group_by(optimizer) %>%
+      performance_summary() %>%
+      print(include.rownames=FALSE)
+    
+    ## Compare results across Regularizer
+    cat(paste("\n\n\n ", dataset_name, " Regularizers\n", sep=""))
+    filt_data %>%
+      group_by(regularization) %>%
+      performance_summary() %>%
+      print(include.rownames=FALSE)
+    
+    ## RF. Analysis
+    output_fname = paste("images/", dataset_name,
+                         "_rf_variable_importance.png", sep="")
+    random_forest_results(filt_data, output_fname)
+  }  
 }
-rm(list=c("filt_data", "output_fname", "dataset_name"))
 
-print("\n\n\n\n####################\n2FC COMES AFTER ME!!!!\n####################\n\n\n\n")
+cat("\n\n\n\n####################\n2FC COMES AFTER ME!!!!\n####################\n\n\n\n")
 
-for (dataset_name in DATASETS) {
-  filt_data <- filter(data_2fc, dataset==dataset_name) %>%
-    select(-c("dataset"))
-  
-  ## Best Performance
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Top Performers\n", sep=""))
-  filt_data  %>%
-    arrange(desc(test_acc)) %>%
-    select("architecture", "regularization", "initializer", "optimizer", "test_acc") %>%
-    head(8) %>%
-    xtable(digits=4, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
-    print(include.rownames=FALSE)
-  
-  ## Compare results across Architectures
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Architectures\n", sep=""))
-  filt_data %>%
-    group_by(architecture) %>%
-    performance_summary() %>%
-    print(include.rownames=FALSE)
-  
-  ## Compare results across Initialization
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Initialization\n", sep=""))
-  filt_data %>%
-    group_by(initializer) %>%
-    performance_summary() %>%
-    print(include.rownames=FALSE)
-  
-  ## Compare results across optimizer
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Optimizers\n", sep=""))
-  filt_data %>%
-    group_by(optimizer) %>%
-    performance_summary() %>%
-    print(include.rownames=FALSE)
-  
-  ## Compare results across Regularizer
-  cat(paste("\n\n\n(NON-2FC) ", dataset_name, " Regularizers\n", sep=""))
-  filt_data %>%
-    group_by(regularization) %>%
-    performance_summary() %>%
-    print(include.rownames=FALSE)
-  
-  ## RF. Analysis
-  output_fname = paste("images/", dataset_name,
-                       "_rf_variable_importance.png", sep="")
-  random_forest_results(filt_data, output_fname)
-}
-rm(list=c("filt_data", "output_fname", "dataset_name"))
+generate_output(data_2fc)
+
+cat("\n\n\n\n####################\nCNN COMES AFTER ME!!!!\n####################\n\n\n\n")
+
+generate_output(data_cnn)
 

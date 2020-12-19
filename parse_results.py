@@ -29,28 +29,45 @@ def handle_fold_performance(fold_info):
     return output
 
 
-def process_results_dictionary(res):
+def process_fold_performance(fold_info, fold_idx):
     output = {}
-    res_keys = res.keys()
+    fold = fold_info[fold_idx]
+    for type_ in ["train", "valid", "test"]:
+        output_key = "{}_{}_{}".format("{}", type_, "{}")
+        output[output_key.format("{}", "acc")] =  fold[type_][1]
 
-    for key_ in res_keys:
-        if isinstance(res[key_], list):
-            vals = handle_fold_performance(res[key_])
-            for key2 in vals:
-                output[key2.format(key_)] = vals[key2]
-        else:
-            if key_ == "architecture":
-                output[key_] = Config.ARCHITECTURE_MAP.get(res[key_])
-            elif key_ == "regularization":
-                output[key_] = Config.REGULARIZATION_MAP.get(res[key_])
-            elif key_ == "initializer":
-                output[key_] = Config.INITIALIZATION_MAP.get(res[key_])
-            elif key_ == "optimizer":
-                output[key_] = Config.OPTIMIZER_MAP.get(res[key_])
-            else:
-                output[key_] = res[key_]
+    output["epochs"] = fold["epochs"]
+    output["fold_idx"] = fold_idx
 
     return output
+
+
+def process_results_dictionary(res):
+    all_results = []
+    res_keys = res.keys()
+
+    for fold_idx in range(int(100 / Config.validation_pct)):
+        output = {}
+        for key_ in res_keys:
+            if isinstance(res[key_], list):
+                vals = process_fold_performance(res[key_], fold_idx)
+                for key2 in vals:
+                    output[key2.format(key_)] = vals[key2]
+            else:
+                if key_ == "architecture":
+                    output[key_] = Config.ARCHITECTURE_MAP.get(res[key_])
+                elif key_ == "regularization":
+                    output[key_] = Config.REGULARIZATION_MAP.get(res[key_])
+                elif key_ == "initializer":
+                    output[key_] = Config.INITIALIZATION_MAP.get(res[key_])
+                elif key_ == "optimizer":
+                    output[key_] = Config.OPTIMIZER_MAP.get(res[key_])
+                else:
+                    output[key_] = res[key_]
+
+        all_results.append(output)
+
+    return all_results
 
 
 def prepare_df(df_in, prefix=None):
@@ -75,7 +92,7 @@ def prepare_dataset(list_of_performance, dataset_name):
     performance_df = pd.DataFrame(list_of_performance)
     performance_df.drop(columns=["model_name"], inplace=True)
 
-    target_columns = list(performance_df.columns[0:4])
+    target_columns = list(performance_df.columns[0:4]) + ["fold_idx"]
     target_columns = target_columns + ["^{}.*".format(dataset_name)]
 
     dataset_df = performance_df.filter(regex="|".join(target_columns))
@@ -116,10 +133,10 @@ if __name__ == "__main__":
                 raise RuntimeError("DUPLICATED BASE MODEL RESULTS")
             base_model_results = process_results_dictionary(res)
         else:
-            model_performance.append(process_results_dictionary(res))
+            model_performance.extend(process_results_dictionary(res))
 
     ## Prepare Base Model results & Write for R analysis
-    prepare_output_df([base_model_results]).to_csv(Config.base_results_fname)
+    prepare_output_df(base_model_results).to_csv(Config.base_results_fname)
 
     ## Write out model results for the rest of them
     prepare_output_df(model_performance).to_csv(Config.proc_results_fname)
