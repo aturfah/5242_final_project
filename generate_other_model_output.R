@@ -35,17 +35,18 @@ data_2fc <- filter(all_data, architecture == "2FC")
 
 performance_summary <- function(data) {
   summarize(data,
-            `Mean Test Acc.`=mean(test_acc),
+            `# Epochs`=mean(epochs),
+            `Test Acc.`=mean(test_acc),
             # `Mean Test Acc.`=round(`Mean Test Acc.`, 4),
             q_lower=quantile(test_acc, 0.05),
             q_upper=quantile(test_acc, 0.95),
-            q_lower=round(q_lower, 4),
-            q_upper=round(q_upper, 4),
-            `90% Test Acc. Range`=paste("(", q_lower, ", ", q_upper, ")", sep=""),
+            q_lower=round(q_lower, 3),
+            q_upper=round(q_upper, 3),
+            `90% Range`=paste("(", q_lower, ", ", q_upper, ")", sep=""),
             ) %>%
     select(-c(q_lower, q_upper)) %>%
-    arrange(desc(`Mean Test Acc.`)) %>%
-    xtable(digits=4, floating=FALSE,latex.environments=NULL,booktabs=TRUE)
+    arrange(desc(`Test Acc.`)) %>%
+    xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE)
 }
 
 
@@ -77,7 +78,8 @@ random_forest_results <- function(data, out_fname) {
            `Pct. Inc. MSE`=`%IncMSE`,
            `Inc. Node Purity`=`IncNodePurity`) %>%
     select(Variable, `Pct. Inc. MSE`, `Inc. Node Purity`) %>%
-    xtable(digits=3, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
+    select(- `Inc. Node Purity`) %>%
+    xtable(digits=1, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%
     print(include.rownames=FALSE)
   
   png(out_fname, height=300, width=500)
@@ -196,7 +198,7 @@ generate_output <- function(data_) {
     filt_data  %>%
       group_by(architecture, regularization, initializer, optimizer) %>%
       summarize(test_acc=mean(test_acc)) %>%
-    arrange(desc(test_acc)) %>%
+      arrange(desc(test_acc)) %>%
       select("architecture", "regularization", "initializer", "optimizer", "test_acc") %>%
       head(8) %>%
       xtable(digits=4, floating=FALSE,latex.environments=NULL,booktabs=TRUE) %>%

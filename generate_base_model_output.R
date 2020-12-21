@@ -22,7 +22,7 @@ DATASETS = c("MNIST", "Fashion-MNIST", "Kuzushiji-MNIST",
 dataset_from_filename <- function(fname) {
   idx = 0
   if (str_detect(fname, "fashion_mnist")) {
-    idx = 1
+    idx = 2
   } else if (str_detect(fname, "k49")) {
     idx = 5
   } else if (str_detect(fname, "kmnist")) {
@@ -30,7 +30,7 @@ dataset_from_filename <- function(fname) {
   } else if (str_detect(fname, "cifar10")) {
     idx = 4
   } else if (str_detect(fname, "mnist")) {
-    idx = 2
+    idx = 1
   } else {
     stop("Invalid Dataset")
   }
@@ -65,12 +65,14 @@ read_plus <- function(flnm) {
 epoch_data <- list.files(path="base_csv", pattern = "*csv", full.names=TRUE) %>% 
   map_df(~read_plus(.)) %>%
   group_by(Dataset, Mode, Value_Type, Step) %>%
-  summarize(value = mean(Value))
+  summarize(value = mean(Value), max_val=max(Value), min_val=min(Value))
 
 png("images/base_model_convergence.png", height=400, width=800)
 epoch_data %>%
   ggplot(aes(x=Step, y=value, color=Mode)) +
   geom_line(alpha=0.9, size=0.8) +
+  # geom_line(aes(y=min_val), alpha=0.9, size=0.8, linetype='dashed') +
+  # geom_line(aes(y=max_val), alpha=0.9, size=0.8, linetype='dashed') +
   labs(title="", x="Step", y="Value") +
   facet_grid(Value_Type ~ Dataset, scales="free_y") +
   theme_classic() +
