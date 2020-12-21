@@ -42,7 +42,7 @@ Model configuration options and the locations to save files are specified in `co
 - `combine_pickles.py` Consolidates the results across all specified `.pkl` files and writes the combined results back to the read files. Helpful when running multiple versions of the `run_pipeline.sh` script in parallel
 
 ## Results Files Provided
-- `results_cv.pkl` Contains model performance across all folds for all configurations specified in `config.py` as well as the base model
+- `results_cv.pkl` Contains model performance across all folds for all configurations specified in `config.py` as well as the base model )to be processed by `parse_results.py`)
 - `finished_pickles/` Directory with all the files used to generate `results_cv.pkl`
-- `base_csv/` Directory with the training/validation information for the  base model trained across the datasets over its folds (for `generate_base_model_output.R`)
+- `base_csv/` Directory with the training/validation information for the  base model trained across the datasets over its folds (for use in `generate_base_model_output.R`)
 - `images` and `lr_images` contain the image output from the R scripts and `lr_finder_test.py`
