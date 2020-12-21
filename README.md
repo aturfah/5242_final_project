@@ -1,7 +1,8 @@
 # STAT 5242 Final Project: Model Design for Deep Learning in Practice
-Ali Turfah
+Author: Ali Turfah
 
-## Installation
+## Preliminaries
+#### Package Installation
 ```
 ## Install requirements
 pip install -r requirements.txt
@@ -13,16 +14,16 @@ pip install tensorflow-datasets==4.1.0
 pip install matplotlib==3.3.3
 ```
 
-## Quickstart
-To use the results of already trained models, run the Analysis scripts based on `results_cv.pkl` (which is the consolidated version of the the files stored in `finished_pickles/`)
+#### Retrieving Kuzushiji-49 data
+See the `kuzushiji_files/` directory for more information.
 
-To train the models, just call `./run_pipeline.sh` which will begin training models according to `config.py`
+## Quickstart
+To train the models according to `config.py` the models and generate the output, just call `./run_pipeline.sh`
+
+See the Analysis Scripts section for more information on generating the output results
 
 ## Specifying model configuration options
 Model configuration options and the locations to save files are specified in `config.py`. The actual mapping to a `tf.keras` class happens in `misc.py` in the appropriate `process_<name>` function.
-
-## Retrieving Kuzushiji-MNIST and Kuzushiji-49 data
-See the `kuzushiji_files/` directory for more information.
 
 ## Training Scripts
 - `fold_balance_script.py` Ensures that folds for dataset contain similar amounts of the classes
@@ -32,7 +33,8 @@ See the `kuzushiji_files/` directory for more information.
 
 ## Analysis Scripts
 - `parse_results.py` Reads in specified `.pkl` files and writes the model performance to two CSV files: one for the base model and another for the models specified by `config.py`
-- `generate_base_model_output.R` Generates the tables and plots for the base model from the CSV output by `parse_results.py`
+- `pull_base_model_csvs.py` This pulls down the training/validation loss/accuracy data from the tensorboard graphs. Make sure to have Tensorboard running before calling this script as it uses the Tensorboard API
+- `generate_base_model_output.R` Generates the tables and plots for the base model from the CSV output by `parse_results.py` and `pull_base_model_csvs.py` for the graphs
 - `generate_other_model_output.R` Generates the tables and plots for the models specified by the config from the CSV output by `parse_results.py`
 
 ## Misc Scripts
