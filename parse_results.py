@@ -36,7 +36,7 @@ def process_fold_performance(fold_info, fold_idx):
         output_key = "{}_{}_{}".format("{}", type_, "{}")
         output[output_key.format("{}", "acc")] =  fold[type_][1]
 
-    output["epochs"] = fold["epochs"]
+    output["{}_epochs"] = fold["epochs"]
     output["fold_idx"] = fold_idx
 
     return output
