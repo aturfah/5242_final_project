@@ -13,7 +13,7 @@ import numpy as np
 import gc
 
 # My stuff
-from models import fit_and_evaluate_fold
+from models import fit_and_evaluate_fold, fit_and_evaluate
 from misc import load_model_history, save_model_history
 from config import Config
 from config import MNIST, FASHION_MNIST, CIFAR10, KMNIST, K49
@@ -28,20 +28,20 @@ tf.random.set_seed(Config.SEED)
 ### Training Loop for Base Model
 loop_cv_results = load_model_history()
 
-# if "base_model" not in loop_cv_results:
-#     loop_cv_results["base_model"] = {
-#         "model_name": "base_model",
-#         "architecture": None,
-#         "regularization": None,
-#         "initializer": None,
-#         "optimizer": None,
-#         MNIST: fit_and_evaluate("base_model", MNIST),
-#         FASHION_MNIST: fit_and_evaluate("base_model", FASHION_MNIST),
-#         CIFAR10: fit_and_evaluate("base_model", CIFAR10),
-#         KMNIST: fit_and_evaluate("base_model", KMNIST),
-#         K49: fit_and_evaluate("base_model", K49)
-#     }
-#     save_model_history(loop_cv_results)
+if "base_model" not in loop_cv_results:
+    loop_cv_results["base_model"] = {
+        "model_name": "base_model",
+        "architecture": None,
+        "regularization": None,
+        "initializer": None,
+        "optimizer": None,
+        MNIST: fit_and_evaluate("base_model", MNIST),
+        FASHION_MNIST: fit_and_evaluate("base_model", FASHION_MNIST),
+        CIFAR10: fit_and_evaluate("base_model", CIFAR10),
+        KMNIST: fit_and_evaluate("base_model", KMNIST),
+        K49: fit_and_evaluate("base_model", K49)
+    }
+    save_model_history(loop_cv_results)
 
 ### Training Loop for Other Models
 total_models = 1 + len(Config.model_arch) * \
