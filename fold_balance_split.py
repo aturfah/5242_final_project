@@ -1,3 +1,7 @@
+"""
+Ensure that the folds are still balanced across
+the classes.
+"""
 from misc import pull_data
 from config import Config
 from pprint import pprint
