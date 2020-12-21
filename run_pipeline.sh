@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for temp in {1..1000..1}
+for temp in {1..6400..1}
 do
     clear
     python train_models.py
