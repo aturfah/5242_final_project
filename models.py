@@ -141,3 +141,11 @@ def fit_and_evaluate_fold(model_type, dataset_name, fold_idx):
     model_fold.save(model_path)
 
     return output
+
+
+def fit_and_evaluate(model_type, dataset_name):
+    output = []
+    for fold_idx in range(int(100 / Config.validation_pct)):
+        output.append(fit_and_evaluate_fold(model_type, dataset_name, fold_idx))
+
+    return output
