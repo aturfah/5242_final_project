@@ -1,3 +1,8 @@
+"""
+Determine optimal learning rates for different models.
+Adapted from the code linked in the paper
+"""
+
 import matplotlib
 matplotlib.use('TkAgg')
 
@@ -183,8 +188,9 @@ architecture = "c:32:3:1|c:32:3:1|p:3|r|c:64:3:1|c:64:3:1|p:3|r|c:64:3:1|c:64:1:
 regularization = "B"
 initializer = "glorot_uniform"
 optimizer = "adam"
+# optimizer = "sgd"
 model_type = "!".join([architecture, regularization, initializer, optimizer])
-dataset_name = K49
+dataset_name = K49 # MNIST, KMNIST, FASHION_MNIST, K49
 
 model_type = model_type.format(prediction_head=Config.DATASET_PREDICTION_HEAD[dataset_name])
 
@@ -221,42 +227,7 @@ for item in tfds.as_numpy(train_fold):
 x_train = np.asarray(images)
 y_train = np.asarray(labels)
 
-print(x_train.shape)
-print(y_train.shape)
-
-# class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
-#                'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
-
-# plt.figure(figsize=(10,10))
-# for i in range(25):
-#     plt.subplot(5,5,i+1)
-#     plt.xticks([])
-#     plt.yticks([])
-#     plt.grid(False)
-#     plt.imshow(x_train[i], cmap=plt.cm.binary)
-#     plt.xlabel(class_names[y_train[i]])
-# plt.show()
-
-
 # LR Finder Code
 lr_finder = LRFinder(model)
 lr_finder.find(x_train, y_train, start_lr=1e-6, end_lr=1, batch_size=128, epochs=1)
 lr_finder.plot_loss(n_skip_beginning=20, n_skip_end=5)
-
-
-# # Make sure the model fits
-# # model = tf.keras.Sequential([
-# #     tf.keras.layers.Flatten(input_shape=(28, 28)),
-# #     tf.keras.layers.Dense(128, activation='relu'),
-# #     tf.keras.layers.Dense(10)
-# # ])
-# import tensorflow_addons as tfa
-
-# model = create_model_function(model_type, dataset_name)
-# model.summary()
-# opt = tf.keras.optimizers.Adam()
-# model.compile(optimizer=tfa.optimizers.SWA(opt),
-#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#               metrics=['sparse_categorical_accuracy'])
-
-# model.fit(x_train, y_train, validation_data=valid_fold.batch(256), epochs=10)
