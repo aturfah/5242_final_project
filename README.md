@@ -1,7 +1,5 @@
 # STAT 5242 Final Project: Model Design for Deep Learning in Practice
-Author: Ali Turfah
-
-Link to Report: [Here](5242_final_report.pdf)
+Author: Ali Turfah<br>Link to Report: [Here](5242_final_report.pdf)
 
 ## Preliminaries
 #### Package Installation
